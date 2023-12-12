@@ -1,0 +1,2 @@
+# Rechnify
+simplify sending invoices
