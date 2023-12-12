@@ -1,0 +1,8 @@
+{
+  "an": "EXAMPLE",
+  "empfaenger_adresse": "Beispielstraße 1/; DE-1234 Beispielstadt",
+  "anschreiben": "Sehr geehrte Damen und Herren, hiermit stelle ich die folgenden Positionen in Rechnung, mit Bitte zur zeitnahen Überweiseung an die unten angegebende IBAN.",
+  "gruss": "Mit freundlichen Grüßen",
+  "empfaenger_email": "invoice@exmaple,com",
+  "digitalsign": "--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---"
+}

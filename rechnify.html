@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Rechnify</title>
+	<style>
+		body {
+			font-family: Arial;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.container {padding-top: 5%;}
+		input, h1, select {display: block; width: 100%; margin-bottom: 10px;}
+		.horizontalAlign {display: flex; margin-bottom: 10px;}
+		button {margin-left: 10px; color: white; width: 28px; border-radius: 20%; border-width: 1px;}
+		button:hover {filter: brightness(95%);}
+		button:active {filter: brightness(90%);}
+		#addwas {background-color: #66BB6A;}
+		#removewas {background-color: #EF5350;}
+		#wann {flex-grow: 1; margin-bottom: 0}
+	</style>
+</head>
+<script>
+	//add was
+	fetch('was.json')
+    .then((res) => res.json())
+    .then((was) => {
+    		//add predefined
+        	let select = document.getElementById('was');
+        	Object.entries(was).map( ([key, val], i) => {
+		    	let option = newOption(key+" - "+val+"€", val);
+			    select.append(option);
+			});
+
+			//add custom
+		    select.append(newOption("was anderes...",0));
+
+		    select.addEventListener('change', function (e) { 
+		    	if (select.selectedIndex + 1 == select.options.length) {
+		    		let what = prompt("Was wars?");
+		    		let howmuchPrompt = prompt("Wie viel kriegst du (in EUR)?"); 
+		    		let howmuch = Number(howmuchPrompt.replace(/\D/g, ''))+0; //only nmbr, + default to 0
+		    		let myoption = newOption(what+" - "+howmuch+"€",howmuch);
+		    		select.insertBefore(myoption, select.lastChild);
+		    		select.selectedIndex = select.options.length -2;
+		    	}
+		    });
+    });
+
+    //get empfaenger
+    fetch('vorlage.json')
+    .then((res) => res.json())
+    .then((vorlage) => { document.getElementById('title').textContent = "Rechnung @ "+vorlage["an"]; });
+
+    function newOption(text, val) {
+    	let opt = document.createElement("option");
+	    opt.value = val; 
+	    opt.textContent = text;
+	    return opt;
+    }
+
+    //to calculate quartal
+    var wannInput;
+
+    window.onload = function(){ //wait for DOM
+		//add was
+		let was = [];
+		let wieviel = [];
+		let wasSelect = document.getElementById("was");
+		let wann = document.getElementById("wann");
+		wann.value = ''; //clear
+		let ul = document.getElementById("waslist");
+		document.getElementById("addwas").addEventListener("click", function(evt){
+			if (wann.value != '') {
+				let date = Date.parse(wann.value);
+				let dateFormat = (new Intl.DateTimeFormat('de')).format(date);
+				let wasValue = wasSelect.options[wasSelect.selectedIndex].text+" ("+dateFormat+")";
+				was.push(wasValue);
+				wieviel.push(Number(wasSelect.value));
+				let li = document.createElement("li");
+			  	li.appendChild(document.createTextNode(wasValue));
+			  	ul.appendChild(li);
+			  	//add to variable
+			  	wannInput = wann.value;
+			  	wann.value = '';
+			  } else {
+			  	wann.required = true;
+			  	wann.reportValidity();
+			  	wann.required = false;
+			  }
+		});
+		document.getElementById("removewas").addEventListener("click", function(evt){
+			try { ul.removeChild(ul.lastChild); } catch {}
+			was.pop();
+			wieviel.pop();
+		});
+
+		//load cookies
+	    let nameInput = document.getElementById('name');
+	    let ibanInput = document.getElementById('iban');
+	    let woInput = document.getElementById('wo');
+	    const getCookie = (name) => (document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || '');
+	    nameInput.value = getCookie('name');
+	    ibanInput.value = getCookie('iban');
+	    woInput.value = getCookie('wo');
+
+	    //set cookies
+	    document.addEventListener('submit', function(evt){
+		    evt.preventDefault();
+		    document.cookie = 'name='+nameInput.value;
+		    document.cookie = 'iban='+ibanInput.value;
+		    document.cookie = 'wo='+woInput.value;
+			if (was.length < 1) {
+				alert('Noch keine Position hinzugefügt, drück auf as +');
+			} else { 
+				//double check
+				let form = document.getElementById("form");
+				let submit = document.getElementById("send");
+				if (form.dataset.sure) {
+					//add 
+					was.forEach((w, i) => newInputToForm('was[]', w));
+					let wievielSum = wieviel.reduce((sum, val) => {return sum + val},0);
+					newInputToForm("wieviel", wievielSum)
+					wann.value = wannInput;
+					form.submit();
+				} else {
+					form.dataset.sure = true;
+					submit.style.color = "red";
+					submit.value = "Sicher?";
+				}
+			}
+		})
+	}; //onload 
+
+	function newInputToForm(name, value) {
+		let form = document.getElementById("form");
+		let input = document.createElement("input");
+		input.name = name;
+		input.value = value;
+		input.type = 'hidden';
+		form.appendChild(input);
+	}
+</script> 
+<body>
+	<div class="container">
+	<h1 id="title">Rechnung @</h1>
+	<form id="form" method="post" action="send.php">
+		<label for="name">Voller Name</label>
+		<input type="text" name="name" id="name" required>
+
+		<label for="wo">Adresse</label>
+		<input type="text" name="wo" id="wo" required>
+
+		<label for="iban">IBAN</label>
+		<input type="text" name="iban" id="iban" required>
+
+		<label for="was">Wofür</label>
+		<select name="was" id="was"></select> 
+
+		<label for="wann">Wann wars</label>
+		<div class="horizontalAlign">
+			<input type="date" name="wann" id="wann">
+			<button type="button" id="addwas">+</button> 
+			<button type="button" id="removewas">-</button> 
+		</div>
+
+		<ul id="waslist"></ul>
+		
+		<input type="submit" name="send" id="send" value="Absenden">
+	</form>
+	</div>
+</body>
+</html>
