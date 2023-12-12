@@ -28,7 +28,7 @@
 		$noteFormat = !empty($note) ? $nl.$note.$nl : '';
 		$rechnung = "An".$nl.$vorlage["an"].$nl.$vorlage["empfaenger_adresse"].$nl.$nl."Von".$nl.$name.$nl.$wo.$nl.$nl."Rechnung ".$rechnungsNr.";   am ".date("d.m.Y").$nl.$vorlage["anschreiben"].$nl.$nl.join($nl,$was).$nl."------------".$nl.$wieviel."€".$nl.$nl."IBAN: ".$iban.$nl.$noteFormat.$nl.$vorlage["gruss"].$nl.$name.$nl.$nl.$vorlage["digitalsign"];
 
-		//E-mail oder soo
+		//send email
 		mail($vorlage["empfaenger_email"],"Rechnung ".$name." ".$rechnungsNr,$rechnung);
 
 		echo "Gesendet! Du kannst die Seite verlassen :)";
