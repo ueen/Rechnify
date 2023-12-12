@@ -6,6 +6,7 @@
 		$was = $_POST['was']; //array
 		$wieviel = $_POST['wieviel'];
 		$wann = $_POST['wann'];
+		$note = $_POST['note']; //optional
 
 		$wannDaysInYear = date('z', strtotime($wann));
 		$quartal = intval($wannDaysInYear / (365/4)) + 1;
@@ -24,7 +25,8 @@
 
 		//generate Rechnung
 		$vorlage = json_decode(file_get_contents("vorlage.json"), true); 
-		$rechnung = "An".$nl.$vorlage["an"].$nl.$vorlage["empfaenger_adresse"].$nl.$nl."Von".$nl.$name.$nl.$wo.$nl.$nl."Rechnung ".$rechnungsNr.";   am ".date("d.m.Y").$nl.$vorlage["anschreiben"].$nl.$nl.join($nl,$was).$nl."------------".$nl.$wieviel."€".$nl.$nl."IBAN: ".$iban.$nl.$nl.$vorlage["gruss"].$nl.$name.$nl.$nl.$vorlage["digitalsign"];
+		$noteFormat = !empty($note) ? $nl.$note.$nl : '';
+		$rechnung = "An".$nl.$vorlage["an"].$nl.$vorlage["empfaenger_adresse"].$nl.$nl."Von".$nl.$name.$nl.$wo.$nl.$nl."Rechnung ".$rechnungsNr.";   am ".date("d.m.Y").$nl.$vorlage["anschreiben"].$nl.$nl.join($nl,$was).$nl."------------".$nl.$wieviel."€".$nl.$nl."IBAN: ".$iban.$nl.$noteFormat.$nl.$vorlage["gruss"].$nl.$name.$nl.$nl.$vorlage["digitalsign"];
 
 		//E-mail oder soo
 		mail($vorlage["empfaenger_email"],"Rechnung ".$_POST['name']." ".$rechnungsNr,$rechnung);
