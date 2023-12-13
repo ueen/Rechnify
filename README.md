@@ -13,7 +13,7 @@ set `pw` in `vorlage.json` to true and add the hash (create a file with the code
 `pwhash.php`
 ```
 <?php
-  echo password_hash($_GET['pw']);
+  echo password_hash($_GET['pw'], PASSWORD_BCRYPT);
 ?>
 ```
 
