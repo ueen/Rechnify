@@ -18,3 +18,5 @@ set `pw` in `vorlage.json` to true and add the hash (create a file with the code
 ```
 
 Feel free to file an issue or a PR to improve this. It's not supposed to be fancy, its supposed to be easy :)
+
+[LICENSE](https://github.com/ueen/Rechnify/blob/main/LICENSE)
