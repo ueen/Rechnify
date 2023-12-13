@@ -1,6 +1,10 @@
 <?php
+	$vorlage = json_decode(file_get_contents("vorlage.json"), true); 
+
 	$name = $_POST['name'];
-	if (isset($name)) {
+	$pw = $_POST['pw'];
+	$verifypw = ($vorlage["pw_protect"]) ? password_verify($pw, $vorlage["pw_hash_bcrypt"]) : true;
+	if (isset($name) && $verifypw) {
 		$wo = $_POST['wo']; 
 		$iban = $_POST['iban'];
 		$was = $_POST['was']; //array
@@ -24,11 +28,10 @@
 		$nl = "\n";
 
 		//generate Rechnung
-		$vorlage = json_decode(file_get_contents("vorlage.json"), true); 
 		$noteFormat = !empty($note) ? $nl.$note.$nl : '';
 		$rechnung = "An".$nl.$vorlage["an"].$nl.$vorlage["empfaenger_adresse"].$nl.$nl."Von".$nl.$name.$nl.$wo.$nl.$nl."Rechnung ".$rechnungsNr.";   am ".date("d.m.Y").$nl.$vorlage["anschreiben"].$nl.$nl.join($nl,$was).$nl."------------".$nl.$wieviel."€".$nl.$nl."IBAN: ".$iban.$nl.$noteFormat.$nl.$vorlage["gruss"].$nl.$name.$nl.$nl.$vorlage["digitalsign"];
 
-		//send email
+		//E-mail oder soo
 		mail($vorlage["empfaenger_email"],"Rechnung ".$name." ".$rechnungsNr,$rechnung);
 
 		echo "Gesendet! Du kannst die Seite verlassen :)";
