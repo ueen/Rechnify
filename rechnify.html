@@ -47,9 +47,9 @@
 			    		let howmuch = Number(howmuchPrompt.replace(/\D/g, ''))+0; //only nmbr, + default to 0
 			    		let myoption = newOption(what+" - "+howmuch+"€",howmuch);
 			    		select.insertBefore(myoption, select.lastChild);
-			    		select.selectedIndex = select.options.length -2;
 			    		savePosition(what, howmuch);
 		    		}
+		    		select.selectedIndex = select.options.length -2;
 		    	}
 		    });
     });
