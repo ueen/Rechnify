@@ -9,6 +9,7 @@
 			font-family: Arial;
 			display: flex;
 			justify-content: center;
+			flex-flow: column;
 			align-items: center;
 		}
 		.container {padding-top: 5%;}
@@ -19,7 +20,7 @@
 		button:active {filter: brightness(90%);}
 		#addwas {background-color: #66BB6A;}
 		#removewas {background-color: #EF5350;}
-		#wann {flex-grow: 1; margin-bottom: 0}
+		#wann {flex-grow: 1; margin-bottom: 0;}
 	</style>
 </head>
 <script>
@@ -29,7 +30,8 @@
     .then((was) => {
     		//add predefined
         	let select = document.getElementById('was');
-        	Object.entries(was).map( ([key, val], i) => {
+        	let wasAndOwn = {...was, ...getPositons()}
+        	Object.entries(wasAndOwn).map( ([key, val], i) => {
 		    	let option = newOption(key+" - "+val+"€", val);
 			    select.append(option);
 			});
@@ -41,18 +43,33 @@
 		    	if (select.selectedIndex + 1 == select.options.length) {
 		    		let what = prompt("Was wars?");
 		    		let howmuchPrompt = prompt("Wie viel kriegst du (in EUR)?"); 
-		    		let howmuch = Number(howmuchPrompt.replace(/\D/g, ''))+0; //only nmbr, + default to 0
-		    		let myoption = newOption(what+" - "+howmuch+"€",howmuch);
-		    		select.insertBefore(myoption, select.lastChild);
-		    		select.selectedIndex = select.options.length -2;
+		    		if (what != null && what.length > 0 && howmuchPrompt != null && howmuchPrompt.length > 0) {
+			    		let howmuch = Number(howmuchPrompt.replace(/\D/g, ''))+0; //only nmbr, + default to 0
+			    		let myoption = newOption(what+" - "+howmuch+"€",howmuch);
+			    		select.insertBefore(myoption, select.lastChild);
+			    		select.selectedIndex = select.options.length -2;
+			    		savePosition(what, howmuch);
+		    		}
 		    	}
 		    });
     });
 
-    //get empfaenger
+    //get prefs
     fetch('vorlage.json')
     .then((res) => res.json())
-    .then((vorlage) => { document.getElementById('title').textContent = "Rechnung @ "+vorlage["an"]; });
+    .then((vorlage) => { 
+    	document.getElementById('title').textContent = "Rechnung @ "+vorlage["an"]; 
+    	document.getElementById('impressum').href = vorlage["impressum"];
+    	if (vorlage["pw_protect"]) { 
+    		let pw = prompt("Passwort"); 
+    		if (pw == null || pw == '') {
+    			document.body.style.display = "none";
+    			alert("Gültiges Password benötigt. Bitte Seite neu laden.");
+    		} else {
+    			newInputToForm("pw", pw);
+    		}
+    	}
+    });
 
     function newOption(text, val) {
     	let opt = document.createElement("option");
@@ -101,7 +118,6 @@
 	    let nameInput = document.getElementById('name');
 	    let ibanInput = document.getElementById('iban');
 	    let woInput = document.getElementById('wo');
-	    const getCookie = (name) => (document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || '');
 	    nameInput.value = getCookie('name');
 	    ibanInput.value = getCookie('iban');
 	    woInput.value = getCookie('wo');
@@ -134,6 +150,8 @@
 		})
 	}; //onload 
 
+	const getCookie = (name) => (document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || '');
+
 	function newInputToForm(name, value) {
 		let form = document.getElementById("form");
 		let input = document.createElement("input");
@@ -141,6 +159,20 @@
 		input.value = value;
 		input.type = 'hidden';
 		form.appendChild(input);
+	}
+
+	function savePosition(title, value) {
+		var positions = getPositons();
+		positions[title] = value;
+		document.cookie = "ownPositions="+JSON.stringify(positions);
+	}
+	function getPositons() {
+		let ownPositions = getCookie("ownPositions");
+		if (ownPositions != null && ownPositions.length > 0) {
+			return JSON.parse(ownPositions);
+		} else {
+			return {};
+		}
 	}
 </script> 
 <body>
@@ -173,5 +205,6 @@
 		<input type="text" name="note" id="note" placeholder="Persönliche Notiz (optional)">
 	</form>
 	</div>
+	<a id="impressum" target="_blank">Impressum</a>
 </body>
 </html>
