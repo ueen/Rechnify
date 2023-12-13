@@ -4,5 +4,8 @@
   "anschreiben": "Sehr geehrte Damen und Herren, hiermit stelle ich die folgenden Positionen in Rechnung, mit Bitte zur zeitnahen Überweiseung an die unten angegebende IBAN.",
   "gruss": "Mit freundlichen Grüßen",
   "empfaenger_email": "invoice@exmaple,com",
-  "digitalsign": "--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---"
+  "digitalsign": "--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---",
+  "impressum": "https://www.freirad.at/impressum/",
+  "pw_protect": false,
+  "pw_hash_bcrypt": ""
 }
