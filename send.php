@@ -1,6 +1,6 @@
 <?php
 	// Customize
-	$empfaenger_email = "invoice@exmaple.com";
+	$empfaenger_email = "ueli.sarnighausen@online.de";
 	$password = '';
 	//
 
@@ -11,7 +11,7 @@
 	$verifypw = (strlen($password) > 0) ? ($password === $pw) : true;
 
 	if (isset($_POST['verifypw'])) {
-		echo ($_POST['verifypw'] === $password);
+		echo ($_POST['verifypw'] === $password) ? 'true' : 'false';
 	} else if (isset($name) && $verifypw) {
 		$wo = $_POST['wo']; 
 		$iban = $_POST['iban'];
