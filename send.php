@@ -1,15 +1,18 @@
 <?php
-	// customizeable
+	// Customize
 	$empfaenger_email = "invoice@exmaple.com";
-	$pw_protect = false;
-	$pw_hash_bcrypt = "";
+	$password = '';
 	//
+
 	$vorlage = json_decode(file_get_contents("vorlage.json"), true); 
 
 	$name = $_POST['name'];
 	$pw = $_POST['pw'];
-	$verifypw = ($pw_protect) ? password_verify($pw, $pw_hash_bcrypt) : true;
-	if (isset($name) && $verifypw) {
+	$verifypw = (strlen($password)) ? ($password === $pw) : true;
+
+	if (isset($_POST['verifypw'])) {
+		echo ($_POST['verifypw'] === $password);
+	} else if (isset($name) && $verifypw) {
 		$wo = $_POST['wo']; 
 		$iban = $_POST['iban'];
 		$was = $_POST['was']; //array
