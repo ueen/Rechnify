@@ -14,7 +14,7 @@ Just host the files from the latest [release](https://github.com/ueen/Rechnify/r
 
 - #### Cutomize `was.json` (items to add to the invoice) and `vorlage.json` (email content, impressum link).
 
-### Basic password protection (optional defaults to false)
+### Basic password protection (optional, defaults to false)
 set `pw_protect` in `vorlage.json` to true and add the `$password` in `send.php`.
 
 *Consider hosting internally or within a login area when not using a password to prevent spam.*
