@@ -22,7 +22,6 @@ set `pw_protect` in `vorlage.json` to true and add the `$password` in `send.php`
 The password can also be added to the URL like this `../rechnify.html?pw=yourpassword`.
 
 
-
-### Feel free to file an issue or a PR to improve this. It's not supposed to be fancy, its supposed to be easy :)
+#### Feel free to file an issue or a PR to improve this. It's not supposed to be fancy, its supposed to be easy :)
 
 ### [LICENSE](https://github.com/ueen/Rechnify/blob/main/LICENSE)
