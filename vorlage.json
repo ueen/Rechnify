@@ -5,5 +5,5 @@
   "gruss": "Mit freundlichen Grüßen",
   "digitalsign": "--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---",
   "impressum": "https://www.exmaple.com/impressum/",
-  "pw_protect": true
+  "pw_protect": false
 }
