@@ -62,12 +62,18 @@
     	document.getElementById('impressum').href = vorlage["impressum"];
     	if (vorlage["pw_protect"]) { 
     		let pw = prompt("Passwort"); 
-    		if (pw == null || pw == '') {
-    			document.body.style.display = "none";
-    			alert("Gültiges Password benötigt. Bitte Seite neu laden.");
-    		} else {
-    			newInputToForm("pw", pw);
-    		}
+    		// verify
+			const xhttp = new XMLHttpRequest();
+			xhttp.onload = function() {
+			  	if (this.responseText === 'true') {
+			  		document.body.style.display = "none";
+    				alert("Gültiges Password benötigt. Bitte Seite neu laden.");
+	    		} else {
+	    			newInputToForm("pw", pw);
+	    		}			
+			}
+			xhttp.open("POST", "send.php");
+			xhttp.send("verifypw="+pw); 
     	}
     });
 
@@ -88,7 +94,7 @@
 		let wasSelect = document.getElementById("was");
 		let wann = document.getElementById("wann");
 		wann.value = ''; //clear
-	    	document.getElementById("note").value = '';
+		document.getElementById("wann").value = '';
 		let ul = document.getElementById("waslist");
 		document.getElementById("addwas").addEventListener("click", function(evt){
 			if (wann.value != '') {
