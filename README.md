@@ -1,14 +1,15 @@
 # Rechnify / Invoicify
 simplify sending invoices
 --------
-Created as an way to ease sending invoices via e-mail to nonprofit clubs for small fees. its in german should be easy to cutomize.
+Created as an way to ease sending invoices via e-mail to nonprofit clubs for small fees. its in german should be easy to cutomize or modify.
 
 Just html, css, js, php, no database, no dependencies.
 
-Cutomize `was.json` (items to add to the invoice) and `vorlage.json` (recipient and email content).
+Change recipient email in `send.php`.
+Cutomize `was.json` (items to add to the invoice) and `vorlage.json` (email content, impressum link).
 
 Basic password protection
-set `pw` in `vorlage.json` to true and add the hash (create a file with the code below and use pwhash.php?pw=yourw to generate it).
+set `pw_protect` in `send.php` to true and add the `pw_hash_bcrypt` (create a file with the code below and use /pwhash.php?pw=yourpw to generate it).
 
 `pwhash.php`
 ```
