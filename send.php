@@ -1,7 +1,7 @@
 <?php
 	// Customize
 	$empfaenger_email = "ueli.sarnighausen@online.de";
-	$password = '';
+	$password = 'pw';
 	//
 
 	$vorlage = json_decode(file_get_contents("vorlage.json"), true); 
@@ -40,10 +40,13 @@
 		$rechnung = "An".$nl.$vorlage["an"].$nl.$empfaenger_email.$nl.$nl."Von".$nl.$name.$nl.$wo.$nl.$nl."Rechnung ".$rechnungsNr.";   am ".date("d.m.Y").$nl.$vorlage["anschreiben"].$nl.$nl.join($nl,$was).$nl."------------".$nl.$wieviel."€".$nl.$nl."IBAN: ".$iban.$nl.$noteFormat.$nl.$vorlage["gruss"].$nl.$name.$nl.$nl.$vorlage["digitalsign"];
 
 		//E-mail oder soo
-		mail($vorlage["empfaenger_email"],"Rechnung ".$name." ".$rechnungsNr,$rechnung);
-
-		echo "Gesendet! Du kannst die Seite verlassen :)";
+		if ($empfaenger_email) {
+			mail($vorlage["empfaenger_email"],"Rechnung ".$name." ".$rechnungsNr,$rechnung);
+			echo "Gesendet! Du kannst die Seite verlassen :)";
+		} else {
+			echo $rechnung;
+		}
 	} else {
-		echo "Ups - da ist was schiefgelaufen :(";
+		echo "Upps - da ist was schiefgelaufen :(";
 	}
 ?>
