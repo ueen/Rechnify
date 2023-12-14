@@ -6,7 +6,7 @@ Created as an way to ease sending invoices via e-mail to nonprofit clubs for sma
 #### Just html, css, js, php, no database, no dependencies.
 
 ## Install
-just host the files from the latest [release](https://github.com/ueen/Rechnify/releases/latest).
+Just host the files from the latest [release](https://github.com/ueen/Rechnify/releases/latest).
 
 ## Customize
 ### Change recipient email in `send.php`.
