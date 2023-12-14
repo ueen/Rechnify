@@ -15,6 +15,7 @@ Just host the files from the latest [release](https://github.com/ueen/Rechnify/r
 
 ### Basic password protection (optional defaults to false)
 set `pw_protect` in `vorlage.json` to true and add the `$password` in `send.php`.
+Consider hosting internally or within a login area when not using a password to prevent spam.
 
 
 #### Feel free to file an issue or a PR to improve this. It's not supposed to be fancy, its supposed to be easy :)
