@@ -12,7 +12,7 @@
 			flex-flow: column;
 			align-items: center;
 		}
-		.container {padding-top: 5%;}
+		#container {padding-top: 5%;}
 		input, h1, select {display: block; width: 100%; margin-bottom: 10px;}
 		.horizontalAlign {display: flex; margin-bottom: 10px;}
 		button {margin-left: 10px; color: white; width: 28px; border-radius: 20%; border-width: 1px;}
@@ -63,17 +63,19 @@
     	if (vorlage["pw_protect"]) { 
     		let pw = prompt("Passwort"); 
     		// verify
-			const xhttp = new XMLHttpRequest();
-			xhttp.onload = function() {
+			const xhr = new XMLHttpRequest();
+			xhr.onload = function() {
+				console.log((this.responseText === 'true'));
 			  	if (this.responseText === 'true') {
-			  		document.body.style.display = "none";
-    				alert("Gültiges Password benötigt. Bitte Seite neu laden.");
+			  		newInputToForm("pw", pw);
 	    		} else {
-	    			newInputToForm("pw", pw);
+	    			document.getElementById('container').remove();
+	    			document.body.textContent = "Gültiges Password benötigt. Bitte Seite neu laden.";
 	    		}			
 			}
-			xhttp.open("POST", "send.php");
-			xhttp.send("verifypw="+pw); 
+			xhr.open("POST", "send.php");
+			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			xhr.send("verifypw="+pw); 
     	}
     });
 
@@ -183,7 +185,7 @@
 	}
 </script> 
 <body>
-	<div class="container">
+	<div id="container">
 	<h1 id="title">Rechnung @</h1>
 	<form id="form" method="post" action="send.php">
 		<label for="name">Voller Name</label>
