@@ -44,7 +44,7 @@
 			mail($vorlage["empfaenger_email"],"Rechnung ".$name." ".$rechnungsNr,$rechnung);
 			echo "Gesendet! Du kannst die Seite verlassen :)";
 		} else {
-			echo $rechnung;
+			echo nl2br($rechnung);
 		}
 	} else {
 		echo "Upps - da ist was schiefgelaufen :(";
