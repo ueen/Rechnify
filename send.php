@@ -8,7 +8,7 @@
 
 	$name = $_POST['name'];
 	$pw = $_POST['pw'];
-	$verifypw = (strlen($password)) ? ($password === $pw) : true;
+	$verifypw = (strlen($password) > 0) ? ($password === $pw) : true;
 
 	if (isset($_POST['verifypw'])) {
 		echo ($_POST['verifypw'] === $password);
