@@ -23,6 +23,6 @@ The password can also be added to the URL like this `../rechnify.html?pw=yourpas
 
 
 
-#### Feel free to file an issue or a PR to improve this. It's not supposed to be fancy, its supposed to be easy :)
+### Feel free to file an issue or a PR to improve this. It's not supposed to be fancy, its supposed to be easy :)
 
 ### [LICENSE](https://github.com/ueen/Rechnify/blob/main/LICENSE)
