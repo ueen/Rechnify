@@ -9,8 +9,9 @@ Created as an way to ease sending invoices via e-mail to nonprofit clubs for sma
 Just host the files from the latest [release](https://github.com/ueen/Rechnify/releases/latest).
 
 ## Customize
-### Change recipient email in `send.php`.
-Cutomize `was.json` (items to add to the invoice) and `vorlage.json` (email content, impressum link).
+#### Change recipient email in `send.php`.
+
+#### Cutomize `was.json` (items to add to the invoice) and `vorlage.json` (email content, impressum link).
 
 ### Basic password protection (optional defaults to false)
 set `pw_protect` in `vorlage.json` to true and add the `$password` in `send.php`.
