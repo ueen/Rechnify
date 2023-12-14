@@ -1,7 +1,7 @@
 <?php
 	// Customize
-	$empfaenger_email = "ueli.sarnighausen@online.de";
-	$password = 'pw';
+	$empfaenger_email = "invoice@example.com";
+	$password = '';
 	//
 
 	$vorlage = json_decode(file_get_contents("vorlage.json"), true); 
