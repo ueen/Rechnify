@@ -61,11 +61,11 @@
     	document.getElementById('title').textContent = "Rechnung @ "+vorlage["an"]; 
     	document.getElementById('impressum').href = vorlage["impressum"];
     	if (vorlage["pw_protect"]) { 
-    		let pw = prompt("Passwort"); 
+    		let urlparams = new URLSearchParams(window.location.search);
+    		let pw = (urlparams.has('pw') ? urlparams.get('pw') : prompt("Passwort")); 
     		// verify
 			const xhr = new XMLHttpRequest();
 			xhr.onload = function() {
-				console.log((this.responseText === 'true'));
 			  	if (this.responseText === 'true') {
 			  		newInputToForm("pw", pw);
 	    		} else {
