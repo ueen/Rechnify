@@ -25,7 +25,8 @@
 
 		$filename = "names/namesQ".$quartal."_".date("Y").".txt";
 
-		$nameHash = hash("md5", $name); 
+		$ibanSubstr = substr($iban,-4, 3); //last 4-1
+		$nameHash = hash("md5", $name.$ibanSubstr); 
 		file_put_contents($filename, $nameHash."\n", FILE_APPEND);
 
 		$namesArch = file_get_contents($filename);
@@ -37,7 +38,7 @@
 
 		//generate Rechnung
 		$noteFormat = !empty($note) ? $nl.$note.$nl : '';
-		$rechnung = "An".$nl.$vorlage["an"].$nl.$empfaenger_email.$nl.$nl."Von".$nl.$name.$nl.$wo.$nl.$nl."Rechnung ".$rechnungsNr.";   am ".date("d.m.Y").$nl.$vorlage["anschreiben"].$nl.$nl.join($nl,$was).$nl."------------".$nl.$wieviel."€".$nl.$nl."IBAN: ".$iban.$nl.$noteFormat.$nl.$vorlage["gruss"].$nl.$name.$nl.$nl.$vorlage["digitalsign"];
+		$rechnung = "An".$nl.$vorlage["an"].$nl.$vorlage["empfaenger_adresse"].$nl.$nl."Von".$nl.$name.$nl.$wo.$nl.$nl."Rechnung ".$rechnungsNr.";   am ".date("d.m.Y").$nl.$vorlage["anschreiben"].$nl.$nl.join($nl,$was).$nl."------------".$nl.$wieviel."€".$nl.$nl."IBAN: ".$iban.$nl.$noteFormat.$nl.$vorlage["gruss"].$nl.$name.$nl.$nl.$vorlage["digitalsign"];
 
 		//E-mail oder soo
 		if ($empfaenger_email) {
