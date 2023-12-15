@@ -21,8 +21,10 @@ set `pw_protect` in `vorlage.json` to true and add the `$password` in `send.php`
 
 The password can also be added to the URL like this `../rechnify.html?pw=yourpassword`.
 
----
-### GDPR/DSGVO ready
+## Example
+Click [here](https://www.u4n.de/invoice-example/rechnify.html) to try a sample version, no e-mail will be send.
+
+## GDPR/DSGVO ready
 Only md5-hashes of the name combined with three digits of the iban are stored on server to count the invoice number, everything else is stricly and securely stored locally in browser cookies.
 
 
