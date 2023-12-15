@@ -1,6 +1,6 @@
 # Rechnify / Invoicify
 simplify sending invoices
---------
+---
 Created as an way to ease sending invoices via e-mail to nonprofit clubs for small fees. its in german and easy to cutomize or modify.
 
 #### Just html, css, js, php, no database, no dependencies.
@@ -21,11 +21,12 @@ set `pw_protect` in `vorlage.json` to true and add the `$password` in `send.php`
 
 The password can also be added to the URL like this `../rechnify.html?pw=yourpassword`.
 
------
+---
 ### GDPR/DSGVO ready
 Only md5-hashes of the name combined with three digits of the iban are stored on server to count the invoice number, everything else is stricly and securely stored locally in browser cookies.
 
 
 #### Feel free to file an issue or a PR to improve this. It's not supposed to be fancy, its supposed to be easy :)
 
+---
 ### [LICENSE](https://github.com/ueen/Rechnify/blob/main/LICENSE)
