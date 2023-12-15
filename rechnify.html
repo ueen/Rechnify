@@ -160,7 +160,7 @@
 		})
 	}; //onload 
 
-	const setCookie = (key, value) => (key+"="+value+"; secure; same-site={strict};");
+	const setCookie = (key, value) => (document.cookie = (key+"="+value+"; secure; same-site={strict};"));
 	const getCookie = (name) => (document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || '');
 
 	function newInputToForm(name, value) {
