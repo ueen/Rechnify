@@ -1,9 +1,9 @@
 {
   "an": "EXAMPLE",
   "empfaenger_adresse": "Beispielstraße 1/; DE-1234 Beispielstadt",
-  "anschreiben": "Sehr geehrte Damen und Herren, hiermit stelle ich die folgenden Positionen in Rechnung, mit Bitte zur zeitnahen Überweiseung an die unten angegebende IBAN.",
+  "anschreiben": "Sehr geehrte Damen und Herren, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen Überweiseung an die unten angegebende IBAN.",
   "gruss": "Mit freundlichen Grüßen",
   "digitalsign": "--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---",
-  "impressum": "https://www.exmaple.com/impressum/",
+  "impressum": "https://www.example.com/impressum/",
   "pw_protect": false
 }
