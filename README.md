@@ -13,7 +13,7 @@ Just host the files from the latest [release](https://github.com/ueen/Rechnify/r
 - #### Change recipient email in `send.php`.
   Can also be set to `false` then the invoice text will be displayed instead of send.
 
-- #### Cutomize `was.json` (items to add to the invoice) and `vorlage.json` (email content, impressum link).
+- #### Cutomize `was.json` (items to add to the invoice) and `vorlage.json` (email content, impressum link, currency).
 
 ### Basic password protection (optional, defaults to false)
 set `pw_protect` in `vorlage.json` to true and add the `$password` in `send.php`.
