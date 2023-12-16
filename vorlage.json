@@ -3,6 +3,7 @@
   "empfaenger_adresse": "Beispielstraße 1/; DE-1234 Beispielstadt",
   "anschreiben": "Sehr geehrte Damen und Herren, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen Überweiseung an die unten angegebende IBAN.",
   "gruss": "Mit freundlichen Grüßen",
+  "currency": "€",
   "digitalsign": "--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---",
   "impressum": "https://www.example.com/impressum/",
   "pw_protect": false
