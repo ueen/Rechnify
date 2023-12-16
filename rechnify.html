@@ -11,7 +11,10 @@
 			justify-content: center;
 			flex-flow: column;
 			align-items: center;
+			opacity: 0;
+  			transition: opacity 1s; 
 		}
+		body.fadeIn {opacity: 1;}
 		#container {padding-top: 5%;}
 		input, h1, select {display: block; width: 100%; margin-bottom: 10px;}
 		.horizontalAlign {display: flex; margin-bottom: 10px;}
@@ -58,7 +61,7 @@
 			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 			xhr.send("verifypw="+pw); 
     	}
-    	
+
     	//add was
 		fetch('was.json')
 	    .then((res) => res.json())
@@ -157,7 +160,8 @@
 			}
 		})
 
-    }
+		document.body.classList.toggle('fadeIn');
+    } //setup
 
 	const setCookie = (key, value) => (document.cookie = (key+"="+value+"; secure; same-site={strict};"));
 	const getCookie = (name) => (document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || '');
