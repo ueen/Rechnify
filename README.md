@@ -1,9 +1,10 @@
 # Rechnify / Invoicify
 simplify sending invoices
----
-Created as an way to ease sending invoices via e-mail to nonprofit clubs for small fees. its in german and easy to cutomize or modify.
 
-#### Just html, css, js, php, no database, no dependencies.
+---
+Created as a way to ease sending invoices via e-mail to nonprofit clubs for small fees. its in german and easy to cutomize or modify.
+
+#### Just html, css, js, php - no database, no dependencies.
 
 ## Install
 Just host the files from the latest [release](https://github.com/ueen/Rechnify/releases/latest).
@@ -27,8 +28,10 @@ Click [here](https://www.u4n.de/invoice-example/rechnify.html) to try a sample v
 ## GDPR/DSGVO ready
 Only md5-hashes of the name combined with three digits of the iban are stored on server to count the invoice number, everything else is stricly and securely stored locally in browser cookies.
 
-
-#### Feel free to file an issue or a PR to improve this. It's not supposed to be fancy, its supposed to be easy :)
+---
+#### Feel free to file an issue or a PR to improve this. It's not supposed to be too fancy, its supposed to be easy :)
+### PR-TODO
+- make the UI translatable
 
 ---
 ### [LICENSE](https://github.com/ueen/Rechnify/blob/main/LICENSE)
