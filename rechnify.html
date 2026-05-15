@@ -296,6 +296,37 @@
     .total-label { font-weight: 600; font-size: 14px; color: var(--text-dim); }
     .total-val   { font-weight: 700; font-size: 22px; color: var(--primary); }
 
+    /* ── Combobox with arrow ── */
+    .combobox-wrap {
+      position: relative;
+      display: flex;
+    }
+    .combobox-wrap input {
+      flex: 1;
+      border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+      border-right: none;
+    }
+    .combobox-arrow {
+      width: 42px;
+      height: var(--input-h);
+      border: 1.5px solid var(--border);
+      border-left: none;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: var(--surface2);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .combobox-arrow:hover { background: var(--border); }
+    .combobox-wrap input:focus { border-right: none; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .combobox-wrap input:focus + .combobox-arrow {
+      border-color: var(--primary);
+      box-shadow: 3px 0 0 3px rgba(108,142,255,.18), 0 3px 0 3px rgba(108,142,255,.18), 0 -3px 0 3px rgba(108,142,255,.18);
+    }
+
     /* ── Segmented toggle ── */
     .seg-toggle {
       display: flex;
@@ -424,8 +455,8 @@
           <input type="text" id="rName" placeholder="z.B. Musterverein e.V." autocomplete="off">
         </div>
         <div class="field">
-          <label for="rAddr">Adresse oder E-Mail</label>
-          <input type="text" id="rAddr" placeholder="Straße Nr, PLZ Ort  oder  name@beispiel.de" autocomplete="off">
+          <label for="rAddr">Adresse / E-Mail</label>
+          <input type="text" id="rAddr" placeholder="Straße Nr, PLZ Ort  oder  name@example.de" autocomplete="off">
         </div>
       </div>
     </div>
@@ -438,8 +469,8 @@
         <input type="text" id="myName" placeholder="Dein Name" autocomplete="name">
       </div>
       <div class="field">
-        <label for="myAddr">Adresse</label>
-        <input type="text" id="myAddr" placeholder="Straße Nr, PLZ Ort" autocomplete="street-address">
+        <label for="myAddr">Adresse / E-Mail</label>
+        <input type="text" id="myAddr" placeholder="Straße Nr, PLZ Ort  oder  name@example.de" autocomplete="street-address">
       </div>
       <div class="field">
         <label>Zahlung</label>
@@ -461,8 +492,13 @@
       <div class="picker-top">
         <div class="field">
           <label for="wasSel">Leistung</label>
-          <input type="text" id="wasSel" list="wasDatalist" placeholder="Wählen oder eingeben…" autocomplete="off">
-          <datalist id="wasDatalist"></datalist>
+          <div class="combobox-wrap">
+            <input type="text" id="wasSel" list="wasDatalist" placeholder="Wählen oder eingeben…" autocomplete="off">
+            <datalist id="wasDatalist"></datalist>
+            <button type="button" class="combobox-arrow" id="wasArrow" tabindex="-1" aria-label="Optionen anzeigen">
+              <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>
+            </button>
+          </div>
         </div>
         <div class="field">
           <label for="priceIn">Betrag</label>
@@ -616,10 +652,7 @@
       paymentMode = mode;
       document.getElementById('payIban').classList.toggle('active', mode === 'iban');
       document.getElementById('payBar').classList.toggle('active',  mode === 'bar');
-      const ibanField = document.getElementById('ibanField');
-      const ibanInput = document.getElementById('myIban');
-      ibanField.style.opacity = mode === 'bar' ? '0.4' : '1';
-      ibanInput.disabled = mode === 'bar';
+      document.getElementById('ibanField').style.display = mode === 'bar' ? 'none' : '';
     }
 
     // ── Recipients ─────────────────────────────────────────────────────────────
@@ -679,9 +712,23 @@
         dl.appendChild(o);
       });
 
+      // Auto-fill price when a known entry is selected
       input.addEventListener('input', () => {
-        const price = wasMap[input.value];
+        const price = wasMap[input.value.trim()];
         if (price !== undefined) priceIn.value = price;
+      });
+
+      // Arrow button opens the dropdown on first click
+      document.getElementById('wasArrow').addEventListener('click', () => {
+        input.focus();
+        // Trick: briefly clear so browser shows all options
+        const saved = input.value;
+        input.value = '';
+        input.dispatchEvent(new Event('input'));
+        requestAnimationFrame(() => {
+          if (!saved) return; // leave empty
+          input.value = saved;
+        });
       });
     }
 
@@ -703,7 +750,7 @@
 
     // ── Items ──────────────────────────────────────────────────────────────────
     function addItem() {
-      const wasIn  = document.getElementById('wasSel');
+      const wasIn   = document.getElementById('wasSel');
       const priceIn = document.getElementById('priceIn');
       const wannIn  = document.getElementById('wannIn');
 
@@ -714,7 +761,7 @@
       if (!wannIn.value) { shake(wannIn); showToast('Bitte Datum wählen'); return; }
       if (isNaN(amount) || priceIn.value === '') { shake(priceIn); showToast('Bitte Betrag eingeben'); return; }
 
-      // Persist new custom entries for next time
+      // Persist unknown entries as custom for next time
       if (wasMap[title] === undefined) {
         wasMap[title] = amount;
         saveCustomPosition(title, amount);
