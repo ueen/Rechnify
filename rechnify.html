@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Rechnify</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -319,6 +322,41 @@
     }
     .combobox-arrow:hover { color: var(--text-dim); }
 
+    /* ── Combobox dropdown ── */
+    .combobox-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+      box-shadow: var(--shadow);
+    }
+    .combobox-dropdown.open { display: block; }
+    .combobox-opt {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      cursor: pointer;
+      gap: 8px;
+      user-select: none;
+    }
+    .combobox-opt:hover { background: var(--surface2); }
+    .combobox-opt-label { flex: 1; font-size: 14px; color: var(--text); }
+    .combobox-opt-price { font-size: 13px; font-weight: 600; color: var(--primary); white-space: nowrap; }
+    .combobox-opt-del {
+      width: 24px; height: 24px;
+      border: none; border-radius: 4px;
+      background: transparent; color: var(--text-muted);
+      cursor: pointer; display: grid; place-items: center;
+      font-size: 18px; line-height: 1; padding: 0;
+    }
+    .combobox-opt-del:hover { background: rgba(248,113,113,.2); color: var(--danger); }
+
     /* ── Segmented toggle ── */
     .seg-toggle {
       display: flex;
@@ -389,6 +427,148 @@
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
+    /* ── Settings button (same style as theme btn) ── */
+    #settingsBtn {
+      margin-left: auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-dim);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    #settingsBtn:hover { background: var(--border); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius) var(--radius) 0 0;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(40px);
+      transition: transform .25s cubic-bezier(.2,.8,.4,1);
+      box-shadow: var(--shadow);
+    }
+    .modal-overlay.open .modal-card {
+      transform: translateY(0);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .modal-title {
+      font-weight: 700;
+      font-size: 16px;
+      flex: 1;
+    }
+    .modal-close {
+      width: 32px; height: 32px;
+      border: none; border-radius: 6px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: grid; place-items: center;
+    }
+    .modal-close:hover { background: var(--border); }
+    .modal-body {
+      overflow-y: auto;
+      padding: 18px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .modal-body .field { margin-top: 0; }
+    .modal-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    /* Preset list */
+    .preset-list { display: flex; flex-direction: column; gap: 6px; }
+    .preset-row {
+      display: grid;
+      grid-template-columns: 1fr 80px 36px;
+      gap: 6px;
+      align-items: center;
+    }
+    .preset-del {
+      width: 36px; height: 36px;
+      border: none; border-radius: var(--radius-sm);
+      background: rgba(248,113,113,.14);
+      color: var(--danger);
+      cursor: pointer; display: grid; place-items: center;
+      font-size: 18px; line-height: 1;
+    }
+    .preset-del:hover { background: rgba(248,113,113,.26); }
+    .preset-add {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 4px;
+    }
+    .preset-add input { flex: 1; }
+    .preset-add-btn {
+      height: var(--input-h); padding: 0 16px;
+      background: rgba(74,222,128,.18); color: var(--accent);
+      border: none; border-radius: var(--radius-sm);
+      font-size: 22px; cursor: pointer; display: grid; place-items: center;
+    }
+    .preset-add-btn:hover { background: rgba(74,222,128,.28); }
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .modal-save {
+      width: 100%; height: 48px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: background .15s;
+    }
+    .modal-save:hover { background: var(--primary-dark); }
+
+    @media (min-width: 520px) {
+      .modal-card {
+        border-radius: var(--radius);
+        margin: 20px;
+        max-height: 85vh;
+      }
+      .modal-overlay { align-items: center; }
+    }
+
     /* ── Footer ── */
     footer {
       text-align: center;
@@ -413,6 +593,41 @@
       main { padding: 28px 20px; gap: 16px; }
       .card { padding: 24px; }
     }
+
+    /* ── Flatpickr theme override ── */
+    .flatpickr-calendar {
+      background: var(--surface) !important;
+      border: 1.5px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      box-shadow: var(--shadow) !important;
+      font-family: inherit !important;
+    }
+    .flatpickr-months, .flatpickr-month { background: var(--surface) !important; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year {
+      background: var(--surface2) !important;
+      color: var(--text) !important;
+      border-radius: 6px !important;
+      font-weight: 700 !important;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months:hover { background: var(--border) !important; }
+    .flatpickr-prev-month, .flatpickr-next-month { fill: var(--text-dim) !important; }
+    .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: var(--text) !important; }
+    span.flatpickr-weekday { color: var(--text-muted) !important; background: var(--surface) !important; }
+    .flatpickr-day { color: var(--text) !important; border-radius: var(--radius-sm) !important; }
+    .flatpickr-day:hover, .flatpickr-day.prevMonthDay:hover, .flatpickr-day.nextMonthDay:hover {
+      background: var(--surface2) !important; border-color: var(--border) !important;
+    }
+    .flatpickr-day.selected, .flatpickr-day.selected:hover {
+      background: var(--primary) !important; border-color: var(--primary) !important; color: #fff !important;
+    }
+    .flatpickr-day.today { border-color: var(--primary) !important; }
+    .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay { color: var(--text-muted) !important; }
+    .numInputWrapper span.arrowUp:after { border-bottom-color: var(--text-dim) !important; }
+    .numInputWrapper span.arrowDown:after { border-top-color: var(--text-dim) !important; }
+    .flatpickr-time { background: var(--surface) !important; border-top: 1px solid var(--border) !important; }
+    .flatpickr-innerContainer { border-bottom: none !important; }
+    .dayContainer { border-right: none !important; }
   </style>
 </head>
 
@@ -421,12 +636,63 @@
     <div class="logo-mark">R</div>
     <span class="header-title">Rechnify</span>
     <span class="header-sub" id="headerSub"></span>
+    <button id="settingsBtn" title="Einstellungen" aria-label="Einstellungen öffnen">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+    </button>
     <button id="themeBtn" title="Hell/Dunkel umschalten" aria-label="Theme umschalten">
       <svg id="themeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
       </svg>
     </button>
   </header>
+
+  <!-- ── Settings modal ── -->
+  <div class="modal-overlay" id="settingsOverlay">
+    <div class="modal-card" id="settingsCard" role="dialog" aria-modal="true" aria-label="Einstellungen">
+      <div class="modal-header">
+        <span class="modal-title">Einstellungen</span>
+        <button class="modal-close" id="settingsClose" aria-label="Schließen">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label for="sAnschreiben">Anschreiben</label>
+          <textarea id="sAnschreiben" rows="4" placeholder="Sehr geehrte Damen und Herren…"></textarea>
+        </div>
+        <div class="field">
+          <label for="sGruss">Grußformel</label>
+          <input type="text" id="sGruss" placeholder="Mit freundlichen Grüßen">
+        </div>
+        <div class="field">
+          <label for="sCurrency">Währung</label>
+          <input type="text" id="sCurrency" placeholder="€" style="max-width:80px">
+        </div>
+        <div class="field">
+          <label for="sDigitalsign">Digitale Signatur</label>
+          <input type="text" id="sDigitalsign" placeholder="--- Digital erstellt und ohne Unterschrift gültig ---">
+        </div>
+        <div class="field">
+          <label for="sImpressum">Impressum-Link</label>
+          <input type="url" id="sImpressum" placeholder="https://example.com/impressum">
+        </div>
+
+        <div class="modal-section-label">Positionen (Wofür)</div>
+        <div class="preset-list" id="presetList"></div>
+        <div class="preset-add">
+          <input type="text"   id="presetName"  placeholder="Bezeichnung" autocomplete="off">
+          <input type="number" id="presetPrice" placeholder="0" min="0" step="0.5" style="max-width:80px">
+          <button type="button" class="preset-add-btn" id="presetAddBtn" title="Hinzufügen">+</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-save" id="settingsSave">Speichern</button>
+      </div>
+    </div>
+  </div>
 
   <main>
 
@@ -435,7 +701,6 @@
       <div class="card-label">An wen</div>
 
       <div class="field">
-        <label for="recipientSel">Schon mal an...</label>
         <select id="recipientSel">
           <option value="__new">+ Neuer Empfänger</option>
         </select>
@@ -443,7 +708,7 @@
 
       <div class="recipient-fields" id="recipientFields">
         <div class="field">
-          <label for="rName">Name</label>
+          <label for="rName">Name / Organisation</label>
           <input type="text" id="rName" placeholder="z.B. Musterverein e.V." autocomplete="off">
         </div>
         <div class="field">
@@ -485,11 +750,11 @@
         <div class="field">
           <label for="wasSel">Wofür</label>
           <div class="combobox-wrap">
-            <input type="text" id="wasSel" list="wasDatalist" placeholder="Wählen oder eingeben…" autocomplete="off">
-            <datalist id="wasDatalist"></datalist>
+            <input type="text" id="wasSel" placeholder="Wählen oder eingeben…" autocomplete="off">
             <button type="button" class="combobox-arrow" id="wasArrow" tabindex="-1" aria-label="Optionen anzeigen">
               <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>
             </button>
+            <div class="combobox-dropdown" id="wasDropdown"></div>
           </div>
         </div>
         <div class="field">
@@ -558,17 +823,16 @@
       Promise.all([
         fetch('vorlage.json').then(r => r.json()).catch(() => ({})),
         fetch('was.json').then(r => r.json()).catch(() => ({}))
-      ]).then(([v, was]) => { vorlage = v; init(v, was); });
+      ]).then(([v, was]) => {
+        const _s = localStorage.getItem('rechnifySettings');
+        const stored = _s ? (() => { try { return JSON.parse(_s); } catch { return {}; } })() : {};
+        vorlage = { ...v, ...stored };
+        init(vorlage, stored.presets || was);
+      });
     });
 
     function init(v, was) {
-      currency = v.currency || '€';
-      if (v.impressum && !v.impressum.includes('example.com')) {
-        const link = document.getElementById('impLink');
-        link.href = v.impressum;
-        link.style.display = '';
-        document.getElementById('impSep').style.display = '';
-      }
+      updateVorlageUI(v);
 
       // Password protection (verify-only — no email sent)
       if (v.pw_protect) {
@@ -585,11 +849,6 @@
         xhr.send('verifypw=' + encodeURIComponent(pw));
       }
 
-      // Seed default recipient from vorlage if nothing saved yet
-      if (v.an && getSavedRecipients().length === 0) {
-        saveRecipient(v.an, (v.empfaenger_adresse || '').replace(/\/;?/g, ',').trim());
-      }
-
       buildRecipientDropdown();
       document.getElementById('recipientSel').addEventListener('change', onRecipientChange);
 
@@ -600,7 +859,6 @@
         onRecipientChange();
       }
 
-      document.getElementById('currencyTag').textContent = currency;
       buildWasSelect(was);
 
       // Load sender from cookies
@@ -615,6 +873,16 @@
       document.getElementById('addBtn').addEventListener('click', addItem);
       document.getElementById('rmBtn').addEventListener('click', removeItem);
       document.getElementById('genBtn').addEventListener('click', handleGenerate);
+
+      // Flatpickr date picker
+      if (typeof flatpickr !== 'undefined') {
+        flatpickr('#wannIn', {
+          locale: 'de',
+          dateFormat: 'Y-m-d',
+          allowInput: true,
+          disableMobile: false,
+        });
+      }
 
       document.body.classList.add('ready');
     }
@@ -692,49 +960,77 @@
     }
 
     // ── Service combobox ───────────────────────────────────────────────────────
+    function renderWasDropdown(filter) {
+      const input    = document.getElementById('wasSel');
+      const priceIn  = document.getElementById('priceIn');
+      const dropdown = document.getElementById('wasDropdown');
+      const q = (filter !== undefined ? filter : (input ? input.value : '')).toLowerCase();
+      dropdown.innerHTML = '';
+      const entries = Object.entries(wasMap).filter(([k]) => !q || k.toLowerCase().includes(q));
+      if (!entries.length) { dropdown.classList.remove('open'); return; }
+      entries.forEach(([label, amount]) => {
+        const opt = document.createElement('div');
+        opt.className = 'combobox-opt';
+
+        const lbl = document.createElement('span');
+        lbl.className = 'combobox-opt-label';
+        lbl.textContent = label;
+
+        const prc = document.createElement('span');
+        prc.className = 'combobox-opt-price';
+        prc.textContent = `${amount}${currency}`;
+
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'combobox-opt-del';
+        del.setAttribute('aria-label', `${label} entfernen`);
+        del.textContent = '×';
+        del.addEventListener('mousedown', e => {
+          e.preventDefault(); e.stopPropagation();
+          delete wasMap[label];
+          renderWasDropdown(input.value);
+        });
+
+        opt.appendChild(lbl); opt.appendChild(prc); opt.appendChild(del);
+        opt.addEventListener('mousedown', e => {
+          e.preventDefault();
+          input.value = label;
+          priceIn.value = amount;
+          dropdown.classList.remove('open');
+        });
+        dropdown.appendChild(opt);
+      });
+      dropdown.classList.add('open');
+    }
+
     function buildWasSelect(was) {
-      const input   = document.getElementById('wasSel');
-      const priceIn = document.getElementById('priceIn');
-      const dl      = document.getElementById('wasDatalist');
+      const input    = document.getElementById('wasSel');
+      const priceIn  = document.getElementById('priceIn');
+      const dropdown = document.getElementById('wasDropdown');
       wasMap = { ...was, ...getCustomPositions() };
 
-      Object.keys(wasMap).forEach(k => {
-        const o = document.createElement('option');
-        o.value = k;
-        dl.appendChild(o);
-      });
-
-      // Auto-fill price when a known entry is selected
+      const openWas = () => renderWasDropdown(input.value);
+      input.addEventListener('focus', openWas);
+      input.addEventListener('click', openWas);
       input.addEventListener('input', () => {
+        renderWasDropdown(input.value);
         const price = wasMap[input.value.trim()];
         if (price !== undefined) priceIn.value = price;
       });
-
-      // Open datalist on focus or first click (clear → redispatch shows all options)
-      const openList = () => {
-        const v = input.value;
-        input.value = '';
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        // Restore after a tick so the list shows with all options
-        setTimeout(() => { if (v) { input.value = v; } }, 10);
-      };
-      input.addEventListener('focus', openList);
-
-      // Arrow button: prevent focus-blur cycle, just open the list
       document.getElementById('wasArrow').addEventListener('mousedown', e => {
         e.preventDefault();
-        if (document.activeElement === input) {
-          openList();
+        if (dropdown.classList.contains('open')) {
+          dropdown.classList.remove('open');
         } else {
           input.focus();
+          renderWasDropdown(input.value);
         }
       });
-    }
-
-    function mkOpt(text, val) {
-      const o = document.createElement('option');
-      o.value = val; o.textContent = text;
-      return o;
+      document.addEventListener('click', e => {
+        if (!input.closest('.combobox-wrap').contains(e.target)) {
+          dropdown.classList.remove('open');
+        }
+      });
     }
 
     function getCustomPositions() {
@@ -764,9 +1060,6 @@
       if (wasMap[title] === undefined) {
         wasMap[title] = amount;
         saveCustomPosition(title, amount);
-        const o = document.createElement('option');
-        o.value = title;
-        document.getElementById('wasDatalist').appendChild(o);
       }
 
       const dateStr = new Date(wannIn.value).toLocaleDateString('de-DE');
@@ -990,6 +1283,98 @@
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2600);
     }
+
+    // ── Vorlage UI sync ────────────────────────────────────────────────────────
+    function updateVorlageUI(v) {
+      currency = v.currency || '€';
+      document.getElementById('currencyTag').textContent = currency;
+      const url  = v.impressum || '';
+      const link = document.getElementById('impLink');
+      const sep  = document.getElementById('impSep');
+      if (url && !url.includes('example.com')) {
+        link.href = url; link.style.display = ''; sep.style.display = '';
+      } else {
+        link.style.display = 'none'; sep.style.display = 'none';
+      }
+    }
+
+    // ── Settings modal ─────────────────────────────────────────────────────────
+    function openSettings() {
+      document.getElementById('sAnschreiben').value = vorlage.anschreiben || '';
+      document.getElementById('sGruss').value       = vorlage.gruss       || '';
+      document.getElementById('sCurrency').value    = vorlage.currency    || currency;
+      document.getElementById('sDigitalsign').value = vorlage.digitalsign || '';
+      document.getElementById('sImpressum').value   = vorlage.impressum   || '';
+      renderPresetList();
+      document.getElementById('settingsOverlay').classList.add('open');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsOverlay').classList.remove('open');
+    }
+
+    function renderPresetList() {
+      const container = document.getElementById('presetList');
+      container.innerHTML = '';
+      Object.entries(wasMap).forEach(([label, amount]) => {
+        const row = document.createElement('div');
+        row.className = 'preset-row';
+        const lbl = document.createElement('span');
+        lbl.style.cssText = 'font-size:14px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+        lbl.textContent = label;
+        const prc = document.createElement('span');
+        prc.style.cssText = 'font-size:14px;font-weight:600;color:var(--primary);text-align:right';
+        prc.textContent = `${amount}${currency}`;
+        const del = document.createElement('button');
+        del.type = 'button'; del.className = 'preset-del';
+        del.setAttribute('aria-label', 'Entfernen');
+        del.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+        del.addEventListener('click', () => {
+          delete wasMap[label];
+          renderPresetList();
+          renderWasDropdown('');
+        });
+        row.appendChild(lbl); row.appendChild(prc); row.appendChild(del);
+        container.appendChild(row);
+      });
+    }
+
+    document.getElementById('settingsBtn').addEventListener('click', openSettings);
+    document.getElementById('settingsClose').addEventListener('click', closeSettings);
+    document.getElementById('settingsOverlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeSettings();
+    });
+
+    document.getElementById('presetAddBtn').addEventListener('click', () => {
+      const nameIn  = document.getElementById('presetName');
+      const priceIn = document.getElementById('presetPrice');
+      const name  = nameIn.value.trim();
+      const price = parseFloat(priceIn.value);
+      if (!name) { shake(nameIn); return; }
+      wasMap[name] = isNaN(price) ? 0 : price;
+      nameIn.value = ''; priceIn.value = '';
+      renderPresetList();
+    });
+
+    document.getElementById('presetName').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('presetAddBtn').click();
+    });
+
+    document.getElementById('settingsSave').addEventListener('click', () => {
+      const upd = {
+        anschreiben: document.getElementById('sAnschreiben').value.trim(),
+        gruss:       document.getElementById('sGruss').value.trim(),
+        currency:    document.getElementById('sCurrency').value.trim() || '€',
+        digitalsign: document.getElementById('sDigitalsign').value.trim(),
+        impressum:   document.getElementById('sImpressum').value.trim(),
+        presets:     { ...wasMap }
+      };
+      localStorage.setItem('rechnifySettings', JSON.stringify(upd));
+      vorlage = { ...vorlage, ...upd };
+      updateVorlageUI(vorlage);
+      closeSettings();
+      showToast('Einstellungen gespeichert');
+    });
 
     const setCookie = (k, v) =>
       (document.cookie = `${k}=${v}; path=/; max-age=31536000; samesite=strict`);
