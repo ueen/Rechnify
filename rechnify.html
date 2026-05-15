@@ -756,7 +756,6 @@
       const title  = wasIn.value.trim();
       const amount = parseFloat(priceIn.value);
 
-      const wannIn = document.getElementById('wannIn');
       if (!title)  { shake(wasIn);   showToast('Bitte Leistung eingeben'); return; }
       if (!wannIn.value) { shake(wannIn); showToast('Bitte Datum wählen'); return; }
       if (isNaN(amount) || priceIn.value === '') { shake(priceIn); showToast('Bitte Betrag eingeben'); return; }
