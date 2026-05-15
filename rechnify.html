@@ -26,6 +26,21 @@
       --input-h: 50px;
     }
 
+    :root.light {
+      --bg: #f0f4f8;
+      --surface: #ffffff;
+      --surface2: #f8fafc;
+      --border: #dde3ec;
+      --primary: #4361ee;
+      --primary-dark: #3451d1;
+      --accent: #16a34a;
+      --danger: #dc2626;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --text-dim: #374151;
+      --shadow: 0 4px 24px rgba(0,0,0,.08);
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
@@ -52,6 +67,7 @@
       align-items: center;
       gap: 12px;
     }
+    :root.light header { background: rgba(240,244,248,.92); }
     .logo-mark {
       width: 34px;
       height: 34px;
@@ -158,7 +174,24 @@
       padding-right: 40px;
       cursor: pointer;
     }
-    select option { background: #1a1d2e; }
+    select option { background: var(--surface); }
+
+    /* ── Theme toggle ── */
+    #themeBtn {
+      margin-left: auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-dim);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background .15s, color .15s;
+      flex-shrink: 0;
+    }
+    #themeBtn:hover { background: var(--border); }
 
     /* ── Recipient section ── */
     .recipient-fields {
@@ -190,17 +223,6 @@
       font-weight: 600;
       color: var(--text-muted);
       pointer-events: none;
-    }
-    .custom-title-wrap {
-      margin-top: 8px;
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height .2s ease, opacity .2s ease, margin .2s ease;
-    }
-    .custom-title-wrap.visible {
-      max-height: 70px;
-      opacity: 1;
     }
     .picker-bottom {
       display: grid;
@@ -376,6 +398,11 @@
     <div class="logo-mark">R</div>
     <span class="header-title">Rechnify</span>
     <span class="header-sub" id="headerSub"></span>
+    <button id="themeBtn" title="Hell/Dunkel umschalten" aria-label="Theme umschalten">
+      <svg id="themeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+      </svg>
+    </button>
   </header>
 
   <main>
@@ -397,8 +424,8 @@
           <input type="text" id="rName" placeholder="z.B. Musterverein e.V." autocomplete="off">
         </div>
         <div class="field">
-          <label for="rAddr">Adresse</label>
-          <input type="text" id="rAddr" placeholder="Straße Nr, PLZ Ort" autocomplete="off">
+          <label for="rAddr">Adresse oder E-Mail</label>
+          <input type="text" id="rAddr" placeholder="Straße Nr, PLZ Ort  oder  name@beispiel.de" autocomplete="off">
         </div>
       </div>
     </div>
@@ -434,7 +461,8 @@
       <div class="picker-top">
         <div class="field">
           <label for="wasSel">Leistung</label>
-          <select id="wasSel"></select>
+          <input type="text" id="wasSel" list="wasDatalist" placeholder="Wählen oder eingeben…" autocomplete="off">
+          <datalist id="wasDatalist"></datalist>
         </div>
         <div class="field">
           <label for="priceIn">Betrag</label>
@@ -442,13 +470,6 @@
             <input type="number" id="priceIn" placeholder="0" min="0" step="0.5" inputmode="decimal">
             <span class="currency-tag" id="currencyTag">€</span>
           </div>
-        </div>
-      </div>
-
-      <div class="custom-title-wrap" id="customTitleWrap">
-        <div class="field" style="margin-top:0">
-          <label for="customTitle">Bezeichnung</label>
-          <input type="text" id="customTitle" placeholder="z.B. Beratung, Fahrtkosten…" autocomplete="off">
         </div>
       </div>
 
@@ -489,8 +510,8 @@
   </main>
 
   <footer>
-    <a id="impLink" href="#" target="_blank">Impressum</a>
-    &nbsp;·&nbsp;
+    <a id="impLink" href="#" target="_blank" style="display:none">Impressum</a>
+    <span id="impSep" style="display:none">&nbsp;·&nbsp;</span>
     <a href="https://github.com/ueen/Rechnify" target="_blank">GitHub</a>
   </footer>
 
@@ -502,6 +523,7 @@
     let vorlage = {};
     let currency = '€';
     let paymentMode = 'iban'; // 'iban' | 'bar'
+    let wasMap = {}; // label → amount
 
     // ── Boot ───────────────────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
@@ -513,7 +535,12 @@
 
     function init(v, was) {
       currency = v.currency || '€';
-      if (v.impressum) document.getElementById('impLink').href = v.impressum;
+      if (v.impressum && !v.impressum.includes('example.com')) {
+        const link = document.getElementById('impLink');
+        link.href = v.impressum;
+        link.style.display = '';
+        document.getElementById('impSep').style.display = '';
+      }
 
       // Password protection (verify-only — no email sent)
       if (v.pw_protect) {
@@ -563,6 +590,26 @@
 
       document.body.classList.add('ready');
     }
+
+    // ── Theme toggle ───────────────────────────────────────────────────────────
+    const moonSVG = `<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`;
+    const sunSVG  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+
+    function applyTheme(light) {
+      document.documentElement.classList.toggle('light', light);
+      document.getElementById('themeIcon').innerHTML = light ? moonSVG : sunSVG;
+    }
+
+    (function () {
+      const saved = localStorage.getItem('theme');
+      applyTheme(saved === 'light');
+    })();
+
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      document.getElementById('themeIcon').innerHTML = isLight ? moonSVG : sunSVG;
+    });
 
     // ── Payment mode ───────────────────────────────────────────────────────────
     function setPaymentMode(mode) {
@@ -619,34 +666,22 @@
       setCookie('recipients', encodeURIComponent(JSON.stringify(saved)));
     }
 
-    // ── Service select ─────────────────────────────────────────────────────────
+    // ── Service combobox ───────────────────────────────────────────────────────
     function buildWasSelect(was) {
-      const sel      = document.getElementById('wasSel');
-      const priceIn  = document.getElementById('priceIn');
-      const combined = { ...was, ...getCustomPositions() };
+      const input   = document.getElementById('wasSel');
+      const priceIn = document.getElementById('priceIn');
+      const dl      = document.getElementById('wasDatalist');
+      wasMap = { ...was, ...getCustomPositions() };
 
-      Object.entries(combined).forEach(([k, v]) => {
-        const o = mkOpt(k, v);
-        o.dataset.label = k;
-        sel.appendChild(o);
+      Object.keys(wasMap).forEach(k => {
+        const o = document.createElement('option');
+        o.value = k;
+        dl.appendChild(o);
       });
-      sel.appendChild(mkOpt('Anderes…', '__custom'));
 
-      // Pre-fill price from first option
-      if (sel.options.length > 1) {
-        priceIn.value = sel.options[0].value !== '__custom' ? sel.options[0].value : '';
-      }
-
-      sel.addEventListener('change', function () {
-        const wrap = document.getElementById('customTitleWrap');
-        if (sel.value === '__custom') {
-          priceIn.value = '';
-          wrap.classList.add('visible');
-          document.getElementById('customTitle').focus();
-        } else {
-          priceIn.value = sel.value;
-          wrap.classList.remove('visible');
-        }
+      input.addEventListener('input', () => {
+        const price = wasMap[input.value];
+        if (price !== undefined) priceIn.value = price;
       });
     }
 
@@ -668,34 +703,24 @@
 
     // ── Items ──────────────────────────────────────────────────────────────────
     function addItem() {
-      const wasSel     = document.getElementById('wasSel');
-      const priceIn    = document.getElementById('priceIn');
-      const wannIn     = document.getElementById('wannIn');
-      const customTitle = document.getElementById('customTitle');
-      const isCustom   = wasSel.value === '__custom';
+      const wasIn  = document.getElementById('wasSel');
+      const priceIn = document.getElementById('priceIn');
+      const wannIn  = document.getElementById('wannIn');
 
-      if (!wannIn.value) { shake(wannIn); showToast('Bitte Datum wählen'); return; }
-
+      const title  = wasIn.value.trim();
       const amount = parseFloat(priceIn.value);
+
+      if (!title)  { shake(wasIn);   showToast('Bitte Leistung eingeben'); return; }
+      if (!wannIn.value) { shake(wannIn); showToast('Bitte Datum wählen'); return; }
       if (isNaN(amount) || priceIn.value === '') { shake(priceIn); showToast('Bitte Betrag eingeben'); return; }
 
-      let title;
-      if (isCustom) {
-        title = customTitle.value.trim();
-        if (!title) { shake(customTitle); showToast('Bitte Bezeichnung eingeben'); return; }
-        // Save as custom position for future use
+      // Persist new custom entries for next time
+      if (wasMap[title] === undefined) {
+        wasMap[title] = amount;
         saveCustomPosition(title, amount);
-        // Add to select above "Anderes…" and switch to it
-        const sel = document.getElementById('wasSel');
-        const o = mkOpt(title, amount);
-        o.dataset.label = title;
-        sel.insertBefore(o, sel.lastElementChild);
-        sel.value = amount;
-        document.getElementById('customTitleWrap').classList.remove('visible');
-        customTitle.value = '';
-      } else {
-        title = wasSel.options[wasSel.selectedIndex].dataset.label
-             || wasSel.options[wasSel.selectedIndex].text;
+        const o = document.createElement('option');
+        o.value = title;
+        document.getElementById('wasDatalist').appendChild(o);
       }
 
       const dateStr = new Date(wannIn.value).toLocaleDateString('de-DE');
