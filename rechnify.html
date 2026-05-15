@@ -457,7 +457,7 @@
     <div class="card">
       <div class="card-label">Von mir</div>
       <div class="field">
-        <label for="myName">Vollständiger Name</label>
+        <label for="myName">Voller Name</label>
         <input type="text" id="myName" placeholder="Dein Name" autocomplete="name">
       </div>
       <div class="field">
@@ -483,7 +483,7 @@
 
       <div class="picker-top">
         <div class="field">
-          <label for="wasSel">Leistung</label>
+          <label for="wasSel">Wofür</label>
           <div class="combobox-wrap">
             <input type="text" id="wasSel" list="wasDatalist" placeholder="Wählen oder eingeben…" autocomplete="off">
             <datalist id="wasDatalist"></datalist>
@@ -503,7 +503,7 @@
 
       <div class="picker-bottom">
         <div class="field">
-          <label for="wannIn">Datum</label>
+          <label for="wannIn">Wann wars</label>
           <input type="date" id="wannIn">
         </div>
         <button type="button" class="icon-btn btn-add" id="addBtn" title="Hinzufügen">+</button>
@@ -884,83 +884,88 @@
 
       y = Math.max(y + 8, sy) + 10;
 
-      // ── Recipient (left) + Date (right)
-      const rParts = rAddr ? rAddr.split(/[,\/]/).map(s => s.trim()).filter(Boolean) : [];
-      const recipientStartY = y;
+      // ── An (Empfänger) — original "An\n[name]\n[address]" structure
+      sf(9, 'normal', GRY);
+      doc.text('An', L, y);
+      y += 5.5;
       sf(10, 'bold', BLK);
       doc.text(rName, L, y);
       y += 5.5;
-      rParts.forEach(part => {
-        sf(9, 'normal', GRY);
-        doc.text(part, L, y);
-        y += 5;
-      });
+      if (rAddr) {
+        rAddr.split(/[,\/]/).map(s => s.trim()).filter(Boolean).forEach(part => {
+          sf(9, 'normal', GRY);
+          doc.text(part, L, y);
+          y += 5;
+        });
+      }
+      // Date right-aligned at "An" level
       sf(9, 'normal', GRY);
-      doc.text(todayStr, R, recipientStartY, { align: 'right' });
+      doc.text(todayStr, R, y - 5.5 * (1 + (rAddr ? rAddr.split(/[,\/]/).filter(Boolean).length : 0)), { align: 'right' });
 
-      y += 14;
+      y += 12;
 
-      // ── Betreff / Beschreibung (note) — main body paragraph
+      // ── Rechnung [nr]; am [date] — original subject line
+      sf(10, 'bold', BLK);
+      doc.text(`Rechnung ${rNr};   am ${todayStr}`, L, y);
+      y += 8;
+
+      // ── Anschreiben from vorlage
+      if (vorlage.anschreiben) {
+        sf(10, 'normal', BLK);
+        const aLines = splitLines(vorlage.anschreiben, W);
+        doc.text(aLines, L, y);
+        y += aLines.length * 5.5 + 6;
+      }
+
+      // ── Betreff / note as additional body paragraph
       if (note) {
         sf(10, 'normal', BLK);
         const nLines = splitLines(note, W);
         doc.text(nLines, L, y);
-        y += nLines.length * 5.5 + 8;
+        y += nLines.length * 5.5 + 6;
       }
 
-      // ── Anschreiben from vorlage (secondary body text)
-      if (vorlage.anschreiben) {
-        sf(10, 'normal', GRY);
-        const aLines = splitLines(vorlage.anschreiben, W);
-        doc.text(aLines, L, y);
-        y += aLines.length * 5.5 + 8;
-      }
+      y += 2;
 
-      // ── Items — simple two-column list
+      // ── Items — original format: label left, amount right
       const total = items.reduce((s, i) => s + i.amount, 0);
       items.forEach(item => {
         sf(10, 'normal', BLK);
         doc.text(item.label, L, y);
-        sf(10, 'bold', BLK);
+        sf(10, 'normal', BLK);
         doc.text(`${item.amount} ${currency}`, R, y, { align: 'right' });
         y += 6.5;
       });
 
-      // ── Rule + Total
+      // ── Original separator + total
       y += 2;
-      doc.setDrawColor(...LGT);
-      doc.line(L, y, R, y);
-      y += 7;
       sf(10, 'normal', GRY);
-      doc.text('Gesamt', L, y);
-      sf(11, 'bold', BLK);
+      doc.text('------------', L, y);
+      sf(10, 'bold', BLK);
       doc.text(`${total} ${currency}`, R, y, { align: 'right' });
-      y += 16;
+      y += 14;
 
-      // ── Payment info — plain text, no boxes
+      // ── Payment — original "IBAN: [iban]" or "Auszahlung in bar."
       if (isCash) {
         sf(10, 'normal', BLK);
         doc.text('Auszahlung in bar.', L, y);
         y += 10;
       } else {
-        sf(9, 'normal', GRY);
-        doc.text('Bitte überweisen auf:', L, y);
-        y += 6;
         sf(10, 'normal', BLK);
-        doc.text(`Inhaber: ${myName}`, L, y); y += 5.5;
-        doc.text(`IBAN:     ${myIban}`,  L, y); y += 12;
+        doc.text(`IBAN: ${myIban}`, L, y);
+        y += 12;
       }
 
-      // ── Closing
+      // ── Gruss + Name — original closing
       if (vorlage.gruss) {
         sf(10, 'normal', BLK);
         doc.text(vorlage.gruss, L, y);
         y += 5.5;
-        sf(10, 'bold', BLK);
+        sf(10, 'normal', BLK);
         doc.text(myName, L, y);
       }
 
-      // ── Footer
+      // ── Digitalsign footer
       if (vorlage.digitalsign) {
         doc.setDrawColor(...LGT);
         doc.line(L, 284, R, 284);
