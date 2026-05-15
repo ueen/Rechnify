@@ -181,7 +181,6 @@
 
     /* ── Theme toggle ── */
     #themeBtn {
-      margin-left: auto;
       width: 36px;
       height: 36px;
       border-radius: 8px;
@@ -357,6 +356,26 @@
     }
     .combobox-opt-del:hover { background: rgba(248,113,113,.2); color: var(--danger); }
 
+    /* ── Date wrapper ── */
+    .date-wrap {
+      position: relative;
+    }
+    .date-wrap input {
+      width: 100%;
+      padding-right: 42px;
+      cursor: text;
+    }
+    .date-cal-btn {
+      position: absolute;
+      right: 0; top: 0;
+      height: 100%; width: 42px;
+      border: none; background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: grid; place-items: center;
+    }
+    .date-cal-btn:hover { color: var(--text-dim); }
+
     /* ── Segmented toggle ── */
     .seg-toggle {
       display: flex;
@@ -429,7 +448,6 @@
 
     /* ── Settings button (same style as theme btn) ── */
     #settingsBtn {
-      margin-left: auto;
       width: 36px;
       height: 36px;
       border-radius: 8px;
@@ -767,7 +785,14 @@
       <div class="picker-bottom">
         <div class="field">
           <label for="wannIn">Wann wars</label>
-          <input type="date" id="wannIn">
+          <div class="date-wrap">
+            <input type="text" id="wannIn" placeholder="TT.MM.JJJJ" autocomplete="off">
+            <button type="button" class="date-cal-btn" id="wannCalBtn" tabindex="-1" aria-label="Kalender öffnen">
+              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <button type="button" class="icon-btn btn-add" id="addBtn" title="Hinzufügen">+</button>
         <button type="button" class="icon-btn btn-rm"  id="rmBtn"  title="Entfernen">−</button>
@@ -823,9 +848,15 @@
         fetch('was.json').then(r => r.json()).catch(() => ({}))
       ]).then(([v, was]) => {
         const _s = localStorage.getItem('rechnifySettings');
-        const stored = _s ? (() => { try { return JSON.parse(_s); } catch { return {}; } })() : {};
+        const stored = _s ? (() => {
+          try {
+            const p = JSON.parse(_s);
+            Object.keys(p).forEach(k => { if (p[k] === '') delete p[k]; });
+            return p;
+          } catch { return {}; }
+        })() : {};
         vorlage = { ...v, ...stored };
-        init(vorlage, stored.presets || was);
+        init(vorlage, { ...was, ...(stored.presets || {}) });
       });
     });
 
@@ -874,12 +905,13 @@
 
       // Flatpickr date picker
       if (typeof flatpickr !== 'undefined') {
-        flatpickr('#wannIn', {
+        const fp = flatpickr('#wannIn', {
           locale: 'de',
-          dateFormat: 'Y-m-d',
+          dateFormat: 'd.m.Y',
           allowInput: true,
           disableMobile: false,
         });
+        document.getElementById('wannCalBtn').addEventListener('click', () => fp.toggle());
       }
 
       document.body.classList.add('ready');
@@ -1064,7 +1096,8 @@
         saveCustomPosition(title, amount);
       }
 
-      const dateStr = new Date(wannIn.value).toLocaleDateString('de-DE');
+      const [dd, mm, yyyy] = wannIn.value.split('.');
+      const dateStr = new Date(yyyy, mm - 1, dd).toLocaleDateString('de-DE');
       items.push({ label: `${title} (${dateStr})`, amount });
       wannIn.value = '';
       renderItems();
