@@ -701,9 +701,7 @@
       <div class="card-label">An wen</div>
 
       <div class="field">
-        <select id="recipientSel">
-          <option value="__new">+ Neuer Empfänger</option>
-        </select>
+        <select id="recipientSel"></select>
       </div>
 
       <div class="recipient-fields" id="recipientFields">
@@ -918,13 +916,17 @@
     // ── Recipients ─────────────────────────────────────────────────────────────
     function buildRecipientDropdown() {
       const sel = document.getElementById('recipientSel');
-      while (sel.options.length > 1) sel.remove(1);
+      sel.innerHTML = '';
       getSavedRecipients().forEach((r, i) => {
         const o = document.createElement('option');
         o.value = i;
         o.textContent = r.name;
         sel.appendChild(o);
       });
+      const newOpt = document.createElement('option');
+      newOpt.value = '__new';
+      newOpt.textContent = '+ Neuer Empfänger';
+      sel.appendChild(newOpt);
     }
 
     function onRecipientChange() {
