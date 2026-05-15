@@ -274,6 +274,33 @@
     .total-label { font-weight: 600; font-size: 14px; color: var(--text-dim); }
     .total-val   { font-weight: 700; font-size: 22px; color: var(--primary); }
 
+    /* ── Segmented toggle ── */
+    .seg-toggle {
+      display: flex;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 3px;
+    }
+    .seg-btn {
+      flex: 1;
+      height: 38px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .seg-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
     /* ── Generate button ── */
     #genBtn {
       display: flex;
@@ -388,6 +415,13 @@
         <input type="text" id="myAddr" placeholder="Straße Nr, PLZ Ort" autocomplete="street-address">
       </div>
       <div class="field">
+        <label>Zahlung</label>
+        <div class="seg-toggle">
+          <button type="button" class="seg-btn active" id="payIban">IBAN</button>
+          <button type="button" class="seg-btn"        id="payBar">Bar</button>
+        </div>
+      </div>
+      <div class="field" id="ibanField">
         <label for="myIban">IBAN</label>
         <input type="text" id="myIban" placeholder="DE00 0000 0000 0000 0000 00" autocomplete="off" inputmode="text">
       </div>
@@ -467,6 +501,7 @@
     let items = [];
     let vorlage = {};
     let currency = '€';
+    let paymentMode = 'iban'; // 'iban' | 'bar'
 
     // ── Boot ───────────────────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
@@ -518,11 +553,26 @@
       document.getElementById('myAddr').value = getCookie('myAddr');
       document.getElementById('myIban').value = getCookie('myIban');
 
+      // Payment toggle
+      document.getElementById('payIban').addEventListener('click', () => setPaymentMode('iban'));
+      document.getElementById('payBar').addEventListener('click',  () => setPaymentMode('bar'));
+
       document.getElementById('addBtn').addEventListener('click', addItem);
       document.getElementById('rmBtn').addEventListener('click', removeItem);
       document.getElementById('genBtn').addEventListener('click', handleGenerate);
 
       document.body.classList.add('ready');
+    }
+
+    // ── Payment mode ───────────────────────────────────────────────────────────
+    function setPaymentMode(mode) {
+      paymentMode = mode;
+      document.getElementById('payIban').classList.toggle('active', mode === 'iban');
+      document.getElementById('payBar').classList.toggle('active',  mode === 'bar');
+      const ibanField = document.getElementById('ibanField');
+      const ibanInput = document.getElementById('myIban');
+      ibanField.style.opacity = mode === 'bar' ? '0.4' : '1';
+      ibanInput.disabled = mode === 'bar';
     }
 
     // ── Recipients ─────────────────────────────────────────────────────────────
@@ -700,7 +750,7 @@
 
       if (!myName) { shake(document.getElementById('myName')); showToast('Bitte Name eingeben'); return; }
       if (!myAddr) { shake(document.getElementById('myAddr')); showToast('Bitte Adresse eingeben'); return; }
-      if (!myIban) { shake(document.getElementById('myIban')); showToast('Bitte IBAN eingeben'); return; }
+      if (paymentMode === 'iban' && !myIban) { shake(document.getElementById('myIban')); showToast('Bitte IBAN eingeben'); return; }
       if (!rName)  { shake(document.getElementById('rName'));  showToast('Bitte Empfänger eingeben'); return; }
       if (!items.length) { showToast('Noch keine Positionen hinzugefügt'); return; }
 
@@ -720,7 +770,7 @@
       const idx = getSavedRecipients().findIndex(r => r.name === rName);
       if (idx >= 0) document.getElementById('recipientSel').value = idx;
 
-      makePDF({ myName, myAddr, myIban, rName, rAddr, note });
+      makePDF({ myName, myAddr, myIban, rName, rAddr, note, isCash: paymentMode === 'bar' });
       resetBtn();
       showToast('PDF wird heruntergeladen ✓');
     }
@@ -735,7 +785,7 @@
       </svg> PDF Generieren`;
     }
 
-    function makePDF({ myName, myAddr, myIban, rName, rAddr, note }) {
+    function makePDF({ myName, myAddr, myIban, rName, rAddr, note, isCash }) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
@@ -835,13 +885,18 @@
       doc.text(`${total}${currency}`, R, y, { align: 'right' });
       y += 16;
 
-      // IBAN
+      // Payment info
       doc.setFillColor(26, 29, 46);
       doc.roundedRect(L, y - 5, R - L, 13, 2, 2, 'F');
-      sf(8.5, 'normal', [100,116,139]);
-      doc.text('IBAN', L + 4, y + 2);
-      sf(11, 'bold');
-      doc.text(myIban, L + 20, y + 2);
+      if (isCash) {
+        sf(10, 'bold');
+        doc.text('Auszahlung in bar.', L + 4, y + 2);
+      } else {
+        sf(8.5, 'normal', [100,116,139]);
+        doc.text('IBAN', L + 4, y + 2);
+        sf(11, 'bold');
+        doc.text(myIban, L + 20, y + 2);
+      }
       y += 20;
 
       // Note
