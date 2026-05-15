@@ -113,6 +113,7 @@
 
     input[type="text"],
     input[type="date"],
+    input[type="number"],
     input[type="password"],
     select,
     textarea {
@@ -147,6 +148,9 @@
       filter: invert(0.6);
       cursor: pointer;
     }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"] { -moz-appearance: textfield; }
     select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
@@ -164,14 +168,47 @@
     }
     .recipient-fields.hidden { display: none; }
 
-    /* ── Item picker row ── */
-    .item-row {
+    /* ── Item picker ── */
+    .picker-top {
       display: grid;
-      grid-template-columns: 1fr auto auto auto;
+      grid-template-columns: 1fr 110px;
       gap: 8px;
       align-items: end;
     }
-    .item-row .date-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .price-wrap {
+      position: relative;
+    }
+    .price-wrap input {
+      padding-right: 32px;
+    }
+    .currency-tag {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .custom-title-wrap {
+      margin-top: 8px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height .2s ease, opacity .2s ease, margin .2s ease;
+    }
+    .custom-title-wrap.visible {
+      max-height: 70px;
+      opacity: 1;
+    }
+    .picker-bottom {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      align-items: end;
+      margin-top: 8px;
+    }
 
     .icon-btn {
       width: var(--input-h);
@@ -360,12 +397,29 @@
     <div class="card">
       <div class="card-label">Positionen</div>
 
-      <div class="item-row">
+      <div class="picker-top">
         <div class="field">
           <label for="wasSel">Leistung</label>
           <select id="wasSel"></select>
         </div>
-        <div class="date-wrap">
+        <div class="field">
+          <label for="priceIn">Betrag</label>
+          <div class="price-wrap">
+            <input type="number" id="priceIn" placeholder="0" min="0" step="0.5" inputmode="decimal">
+            <span class="currency-tag" id="currencyTag">€</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-title-wrap" id="customTitleWrap">
+        <div class="field" style="margin-top:0">
+          <label for="customTitle">Bezeichnung</label>
+          <input type="text" id="customTitle" placeholder="z.B. Beratung, Fahrtkosten…" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="picker-bottom">
+        <div class="field">
           <label for="wannIn">Datum</label>
           <input type="date" id="wannIn">
         </div>
@@ -456,6 +510,7 @@
         onRecipientChange();
       }
 
+      document.getElementById('currencyTag').textContent = currency;
       buildWasSelect(was);
 
       // Load sender from cookies
@@ -516,24 +571,31 @@
 
     // ── Service select ─────────────────────────────────────────────────────────
     function buildWasSelect(was) {
-      const sel = document.getElementById('wasSel');
+      const sel      = document.getElementById('wasSel');
+      const priceIn  = document.getElementById('priceIn');
       const combined = { ...was, ...getCustomPositions() };
+
       Object.entries(combined).forEach(([k, v]) => {
-        sel.appendChild(mkOpt(`${k} — ${v}${currency}`, v));
+        const o = mkOpt(k, v);
+        o.dataset.label = k;
+        sel.appendChild(o);
       });
       sel.appendChild(mkOpt('Anderes…', '__custom'));
 
+      // Pre-fill price from first option
+      if (sel.options.length > 1) {
+        priceIn.value = sel.options[0].value !== '__custom' ? sel.options[0].value : '';
+      }
+
       sel.addEventListener('change', function () {
-        if (sel.value !== '__custom') return;
-        const what = prompt('Was wars?');
-        const howStr = prompt('Wie viel (in ' + currency + ')?');
-        if (what && howStr) {
-          const amt = parseFloat(howStr.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-          sel.insertBefore(mkOpt(`${what} — ${amt}${currency}`, amt), sel.lastElementChild);
-          saveCustomPosition(what, amt);
-          sel.value = amt;
+        const wrap = document.getElementById('customTitleWrap');
+        if (sel.value === '__custom') {
+          priceIn.value = '';
+          wrap.classList.add('visible');
+          document.getElementById('customTitle').focus();
         } else {
-          sel.selectedIndex = sel.options.length - 2;
+          priceIn.value = sel.value;
+          wrap.classList.remove('visible');
         }
       });
     }
@@ -556,15 +618,38 @@
 
     // ── Items ──────────────────────────────────────────────────────────────────
     function addItem() {
-      const wasSel = document.getElementById('wasSel');
-      const wannIn = document.getElementById('wannIn');
+      const wasSel     = document.getElementById('wasSel');
+      const priceIn    = document.getElementById('priceIn');
+      const wannIn     = document.getElementById('wannIn');
+      const customTitle = document.getElementById('customTitle');
+      const isCustom   = wasSel.value === '__custom';
+
       if (!wannIn.value) { shake(wannIn); showToast('Bitte Datum wählen'); return; }
-      if (wasSel.value === '__custom') { showToast('Bitte Leistung wählen'); return; }
+
+      const amount = parseFloat(priceIn.value);
+      if (isNaN(amount) || priceIn.value === '') { shake(priceIn); showToast('Bitte Betrag eingeben'); return; }
+
+      let title;
+      if (isCustom) {
+        title = customTitle.value.trim();
+        if (!title) { shake(customTitle); showToast('Bitte Bezeichnung eingeben'); return; }
+        // Save as custom position for future use
+        saveCustomPosition(title, amount);
+        // Add to select above "Anderes…" and switch to it
+        const sel = document.getElementById('wasSel');
+        const o = mkOpt(title, amount);
+        o.dataset.label = title;
+        sel.insertBefore(o, sel.lastElementChild);
+        sel.value = amount;
+        document.getElementById('customTitleWrap').classList.remove('visible');
+        customTitle.value = '';
+      } else {
+        title = wasSel.options[wasSel.selectedIndex].dataset.label
+             || wasSel.options[wasSel.selectedIndex].text;
+      }
 
       const dateStr = new Date(wannIn.value).toLocaleDateString('de-DE');
-      const amount  = parseFloat(wasSel.value) || 0;
-      const label   = wasSel.options[wasSel.selectedIndex].text;
-      items.push({ label: `${label} (${dateStr})`, amount });
+      items.push({ label: `${title} (${dateStr})`, amount });
       wannIn.value = '';
       renderItems();
     }
