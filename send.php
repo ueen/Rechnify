@@ -28,6 +28,8 @@ if (isset($_POST['verifypw'])) {
 
 // ── Send invoice via e-mail ───────────────────────────────────────────────────
 if (isset($_POST['sendmail'])) {
+    if ($password !== '' && trim($_POST['pw'] ?? '') !== $password) { echo 'error'; exit; }
+
     $to       = filter_var(trim($_POST['to']        ?? ''), FILTER_VALIDATE_EMAIL);
     $fromName = trim($_POST['from_name'] ?? 'Rechnify');
     $subject  = trim($_POST['subject']   ?? 'Rechnung');
@@ -41,9 +43,10 @@ if (isset($_POST['sendmail'])) {
     $pdf = base64_decode(preg_replace('#^data:application/pdf;base64,#', '', $pdfB64));
     if (!$pdf) { echo 'error'; exit; }
 
-    $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $fromAddr = $from_email ?: 'noreply@' . $host;
-    $boundary = 'rechnify_' . bin2hex(random_bytes(8));
+    $senderEmail = filter_var(trim($_POST['from_addr'] ?? ''), FILTER_VALIDATE_EMAIL);
+    $host        = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $fromAddr    = $senderEmail ?: ($from_email ?: 'noreply@' . $host);
+    $boundary    = 'rechnify_' . bin2hex(random_bytes(8));
 
     $plain = '';
     if ($bodyText) $plain .= $bodyText . "\r\n\r\n";
@@ -60,6 +63,7 @@ if (isset($_POST['sendmail'])) {
         'X-Mailer: Rechnify',
     ];
     if ($cc) $headerLines[] = 'Cc: ' . $cc;
+    if ($senderEmail) $headerLines[] = 'Reply-To: ' . $senderEmail;
     $headers = implode("\r\n", $headerLines);
 
     $message = "--{$boundary}\r\n"

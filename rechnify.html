@@ -121,7 +121,8 @@
     .card-label {
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: .02em;
+      letter-spacing: .06em;
+      text-transform: uppercase;
       color: var(--text-muted);
       margin-bottom: 16px;
     }
@@ -401,6 +402,18 @@
       font-size: 18px; line-height: 1; padding: 0;
     }
     .combobox-opt-del:hover { background: rgba(248,113,113,.2); color: var(--danger); }
+
+    /* ── Recipient combobox row ── */
+    .recipient-name-row { display: flex; gap: 8px; align-items: flex-end; }
+    .recipient-name-row .combobox-wrap { flex: 1; }
+    .recipient-new-btn {
+      flex-shrink: 0;
+      height: var(--input-h); width: var(--input-h);
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface2); color: var(--text-dim);
+      cursor: pointer; display: grid; place-items: center;
+    }
+    .recipient-new-btn:hover { background: rgba(74,222,128,.28); color: var(--accent); }
 
     /* ── Date wrapper ── */
     .date-wrap {
@@ -836,11 +849,6 @@
           <label for="sDigitalsign" data-i18n="lblDigitalsign">Digitale Signatur</label>
           <input type="text" id="sDigitalsign" data-i18n-ph="sDigitalsignPh" placeholder="--- Digital erstellt und ohne Unterschrift gültig ---">
         </div>
-        <div class="field">
-          <label for="sImpressum" data-i18n="lblImpressum">Impressum-Link</label>
-          <input type="url" id="sImpressum" placeholder="https://example.com/impressum">
-        </div>
-
         <div class="modal-section-label" data-i18n="presetsLabel">Posten (Wofür)</div>
         <div class="preset-list" id="presetList"></div>
         <div class="preset-add">
@@ -862,14 +870,21 @@
     <div class="card">
       <div class="card-label" data-i18n="toWhom">An wen</div>
 
-      <div class="field">
-        <select id="recipientSel"></select>
-      </div>
-
       <div class="recipient-fields" id="recipientFields">
         <div class="field">
           <label for="rName" data-i18n="nameOrg">Name / Organisation</label>
-          <input type="text" id="rName" data-i18n-ph="rNamePh" placeholder="z.B. Musterverein e.V." autocomplete="off">
+          <div class="recipient-name-row">
+            <div class="combobox-wrap">
+              <input type="text" id="rName" data-i18n-ph="rNamePh" placeholder="z.B. Musterverein e.V." autocomplete="off">
+              <button type="button" class="combobox-arrow" id="rNameArrow" tabindex="-1" aria-label="Empfänger auswählen">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>
+              </button>
+              <div class="combobox-dropdown" id="rNameDropdown"></div>
+            </div>
+            <button type="button" class="recipient-new-btn" id="rNewBtn" title="Neuer Empfänger">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            </button>
+          </div>
         </div>
         <div class="addr-or-email">
           <div class="field">
@@ -1010,6 +1025,7 @@
     let wasMap = {}; // label → amount
     let dateRaw = ''; // raw digit string for date mask
     let _cachedPdfUri = null; // cached data-URI for preview → send flow
+    let _sessionPw    = '';   // password entered at load, forwarded with email sends
 
     const decimalSep = () => ['en', 'ja'].includes(currentLang) ? '.' : ',';
     const parseAmount = s => parseFloat((s || '').toString().replace(',', '.'));
@@ -1063,6 +1079,7 @@
       if (v.pw_protect) {
         const params = new URLSearchParams(window.location.search);
         const pw = params.has('pw') ? params.get('pw') : prompt('Passwort');
+        _sessionPw = pw || '';
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
           if (this.responseText !== 'true') {
@@ -1074,13 +1091,15 @@
         xhr.send('verifypw=' + encodeURIComponent(pw));
       }
 
-      buildRecipientDropdown();
-      document.getElementById('recipientSel').addEventListener('change', onRecipientChange);
+      buildRecipientCombobox();
 
-      // Auto-select first recipient
-      if (getAllRecipients().length > 0) {
-        document.getElementById('recipientSel').value = '0';
-        onRecipientChange();
+      // Auto-fill first recipient
+      const firstR = getAllRecipients()[0];
+      if (firstR) {
+        document.getElementById('rName').value  = firstR.name;
+        document.getElementById('rAddr').value  = firstR.address || '';
+        document.getElementById('rEmail').value = firstR.email   || '';
+        document.getElementById('headerSub').textContent = '@ ' + firstR.name;
       }
 
       buildWasSelect(wasPresets);
@@ -1229,39 +1248,79 @@
       return [...saved, ...presets];
     }
 
-    function buildRecipientDropdown() {
-      const sel = document.getElementById('recipientSel');
-      sel.innerHTML = '';
-      getAllRecipients().forEach((r, i) => {
-        const o = document.createElement('option');
-        o.value = i;
-        o.textContent = r.name;
-        sel.appendChild(o);
-      });
-      const newOpt = document.createElement('option');
-      newOpt.value = '__new';
-      newOpt.textContent = t().newRecipient;
-      sel.appendChild(newOpt);
+    function syncRecipientArrow() {
+      document.getElementById('rNameArrow').style.display = getAllRecipients().length ? '' : 'none';
     }
 
-    function onRecipientChange() {
-      const sel = document.getElementById('recipientSel');
-      if (sel.value === '__new') {
-        document.getElementById('rName').value = '';
-        document.getElementById('rAddr').value = '';
+    function renderRecipientDropdown(filter) {
+      const input    = document.getElementById('rName');
+      const dropdown = document.getElementById('rNameDropdown');
+      const q = (filter !== undefined ? filter : (input ? input.value : '')).toLowerCase();
+      dropdown.innerHTML = '';
+      const all = getAllRecipients().filter(r => !q || r.name.toLowerCase().includes(q));
+      if (!all.length) { dropdown.classList.remove('open'); return; }
+      all.forEach(r => {
+        const opt = document.createElement('div');
+        opt.className = 'combobox-opt';
+        const lbl = document.createElement('span');
+        lbl.className = 'combobox-opt-label';
+        lbl.textContent = r.name;
+        const del = document.createElement('button');
+        del.type = 'button'; del.className = 'combobox-opt-del';
+        del.setAttribute('aria-label', `${r.name} entfernen`);
+        del.textContent = '×';
+        del.addEventListener('mousedown', e => {
+          e.preventDefault(); e.stopPropagation();
+          deleteRecipient(r.name);
+          syncRecipientArrow();
+          renderRecipientDropdown(input.value);
+        });
+        opt.appendChild(lbl); opt.appendChild(del);
+        opt.addEventListener('mousedown', e => {
+          e.preventDefault();
+          input.value = r.name;
+          document.getElementById('rAddr').value  = r.address || '';
+          document.getElementById('rEmail').value = r.email   || '';
+          document.getElementById('headerSub').textContent = '@ ' + r.name;
+          dropdown.classList.remove('open');
+          updateSendBtn();
+        });
+        dropdown.appendChild(opt);
+      });
+      dropdown.classList.add('open');
+    }
+
+    function buildRecipientCombobox() {
+      const input    = document.getElementById('rName');
+      const dropdown = document.getElementById('rNameDropdown');
+      syncRecipientArrow();
+      const openDrop = () => renderRecipientDropdown(input.value);
+      input.addEventListener('focus', openDrop);
+      input.addEventListener('click', openDrop);
+      input.addEventListener('input', () => renderRecipientDropdown(input.value));
+      document.getElementById('rNameArrow').addEventListener('mousedown', e => {
+        e.preventDefault();
+        if (dropdown.classList.contains('open')) {
+          dropdown.classList.remove('open');
+        } else {
+          input.focus();
+          renderRecipientDropdown(input.value);
+        }
+      });
+      document.getElementById('rNewBtn').addEventListener('click', () => {
+        input.value = '';
+        document.getElementById('rAddr').value  = '';
         document.getElementById('rEmail').value = '';
         document.getElementById('headerSub').textContent = '';
-        document.getElementById('rName').focus();
-      } else {
-        const r = getAllRecipients()[parseInt(sel.value)];
-        if (r) {
-          document.getElementById('rName').value = r.name;
-          document.getElementById('rAddr').value = r.address || '';
-          document.getElementById('rEmail').value = r.email || '';
-          document.getElementById('headerSub').textContent = '@ ' + r.name;
+        dropdown.classList.remove('open');
+        input.focus();
+        updateSendBtn();
+      });
+      document.addEventListener('click', e => {
+        if (!input.closest('.combobox-wrap').contains(e.target)) {
+          dropdown.classList.remove('open');
         }
-      }
-      updateSendBtn();
+      });
     }
 
     function getSavedRecipients() {
@@ -1280,6 +1339,11 @@
       } else {
         saved.push({ name, address: address || '', email: email || '' });
       }
+      setCookie('recipients', encodeURIComponent(JSON.stringify(saved)));
+    }
+
+    function deleteRecipient(name) {
+      const saved = getSavedRecipients().filter(r => r.name !== name);
       setCookie('recipients', encodeURIComponent(JSON.stringify(saved)));
     }
 
@@ -1505,9 +1569,7 @@
       setCookie('myEmail', d.myEmail);
       setCookie('myIban', d.myIban);
       saveRecipient(d.rName, d.rAddr, d.rEmail);
-      buildRecipientDropdown();
-      const idx = getAllRecipients().findIndex(r => r.name === d.rName);
-      if (idx >= 0) document.getElementById('recipientSel').value = idx;
+      syncRecipientArrow();
     }
 
     function handleGenerate() {
@@ -1547,8 +1609,10 @@
       try {
         const form = new FormData();
         form.append('sendmail', '1');
+        if (_sessionPw) form.append('pw', _sessionPw);
         form.append('to',        d.rEmail);
         form.append('from_name', d.myName);
+        form.append('from_addr', d.myEmail || '');
         form.append('subject',   `${t().invoice} – ${d.myName}`);
         form.append('body',      vorlage.letter || '');
         form.append('gruss',     vorlage.gruss || '');
@@ -1752,7 +1816,6 @@
       document.getElementById('sGruss').value       = vorlage.gruss       || '';
       document.getElementById('sCurrency').value    = vorlage.currency    || currency;
       document.getElementById('sDigitalsign').value = vorlage.digitalsign || '';
-      document.getElementById('sImpressum').value   = vorlage.impressum   || '';
       renderPresetList();
       document.getElementById('settingsOverlay').classList.add('open');
     }
@@ -1831,7 +1894,6 @@
         gruss:       document.getElementById('sGruss').value.trim(),
         currency:    document.getElementById('sCurrency').value.trim() || '€',
         digitalsign: document.getElementById('sDigitalsign').value.trim(),
-        impressum:   document.getElementById('sImpressum').value.trim(),
         presets:     { ...wasMap }
       };
       localStorage.setItem('rechnifySettings', JSON.stringify(upd));
@@ -1852,7 +1914,7 @@
         sendEmail:'Per E-Mail senden', sendOk:'Gesendet ✓', sendFail:'Versand fehlgeschlagen', noEmail:'Keine E-Mail-Adresse hinterlegt',
         clearData:'Lokale Daten löschen',
         lblAnschreiben:'anschreiben', lblGruss:'grußformel', lblCurrency:'währung',
-        lblDigitalsign:'digitale signatur', lblImpressum:'impressum-link',
+        lblDigitalsign:'digitale signatur',
         presetsLabel:'was (wofür)', save:'Speichern',
         emptyHint:'Noch keine Posten — Datum wählen und + drücken',
         newRecipient:'+ Neuer Empfänger',
@@ -1881,7 +1943,7 @@
         sendEmail:'Send by email', sendOk:'Sent ✓', sendFail:'Sending failed', noEmail:'No email address on file',
         clearData:'Clear local data',
         lblAnschreiben:'opening text', lblGruss:'closing', lblCurrency:'currency',
-        lblDigitalsign:'digital signature', lblImpressum:'imprint link',
+        lblDigitalsign:'digital signature',
         presetsLabel:'what (for)', save:'Save',
         emptyHint:'No items yet — pick a date and hit +',
         newRecipient:'+ New recipient',
@@ -1910,7 +1972,7 @@
         sendEmail:'Envoyer par e-mail', sendOk:'Envoyé ✓', sendFail:'Envoi échoué', noEmail:'Pas d\'adresse e-mail',
         clearData:'Effacer les données locales',
         lblAnschreiben:"texte d'intro", lblGruss:'formule de politesse', lblCurrency:'devise',
-        lblDigitalsign:'signature numérique', lblImpressum:'mentions légales',
+        lblDigitalsign:'signature numérique',
         presetsLabel:'quoi (pour)', save:'Enregistrer',
         emptyHint:'Aucune prestation — choisir une date et appuyer sur +',
         newRecipient:'+ Nouveau destinataire',
@@ -1939,7 +2001,7 @@
         sendEmail:'Enviar por e-mail', sendOk:'Enviado ✓', sendFail:'Error al enviar', noEmail:'Sin dirección de e-mail',
         clearData:'Borrar datos locales',
         lblAnschreiben:'texto introductorio', lblGruss:'fórmula de cierre', lblCurrency:'divisa',
-        lblDigitalsign:'firma digital', lblImpressum:'aviso legal',
+        lblDigitalsign:'firma digital',
         presetsLabel:'qué (para)', save:'Guardar',
         emptyHint:'Sin conceptos — elige fecha y pulsa +',
         newRecipient:'+ Nuevo destinatario',
@@ -1968,7 +2030,7 @@
         sendEmail:'Invia per e-mail', sendOk:'Inviato ✓', sendFail:'Invio fallito', noEmail:'Nessuna e-mail',
         clearData:'Cancella dati locali',
         lblAnschreiben:'testo introduttivo', lblGruss:'formula di chiusura', lblCurrency:'valuta',
-        lblDigitalsign:'firma digitale', lblImpressum:'note legali',
+        lblDigitalsign:'firma digitale',
         presetsLabel:'cosa (per)', save:'Salva',
         emptyHint:'Nessuna voce — scegli una data e premi +',
         newRecipient:'+ Nuovo destinatario',
@@ -1997,7 +2059,7 @@
         sendEmail:'Enviar por e-mail', sendOk:'Enviado ✓', sendFail:'Falha no envio', noEmail:'Sem e-mail',
         clearData:'Apagar dados locais',
         lblAnschreiben:'texto de abertura', lblGruss:'fórmula de fecho', lblCurrency:'moeda',
-        lblDigitalsign:'assinatura digital', lblImpressum:'aviso legal',
+        lblDigitalsign:'assinatura digital',
         presetsLabel:'o quê (para)', save:'Guardar',
         emptyHint:'Sem itens — escolhe uma data e prime +',
         newRecipient:'+ Novo destinatário',
@@ -2026,7 +2088,7 @@
         sendEmail:'Versturen', sendOk:'Verzonden ✓', sendFail:'Verzenden mislukt', noEmail:'Geen e-mailadres',
         clearData:'Lokale gegevens wissen',
         lblAnschreiben:'openingstekst', lblGruss:'afsluiting', lblCurrency:'valuta',
-        lblDigitalsign:'digitale handtekening', lblImpressum:'impressum-link',
+        lblDigitalsign:'digitale handtekening',
         presetsLabel:'wat (voor)', save:'Opslaan',
         emptyHint:'Nog geen posten — kies een datum en druk op +',
         newRecipient:'+ Nieuwe ontvanger',
@@ -2055,7 +2117,7 @@
         sendEmail:'Wyślij e-mail', sendOk:'Wysłano ✓', sendFail:'Wysyłanie nieudane', noEmail:'Brak adresu e-mail',
         clearData:'Wyczyść dane lokalne',
         lblAnschreiben:'tekst wstępny', lblGruss:'formuła zamknięcia', lblCurrency:'waluta',
-        lblDigitalsign:'podpis cyfrowy', lblImpressum:'stopka prawna',
+        lblDigitalsign:'podpis cyfrowy',
         presetsLabel:'co (za)', save:'Zapisz',
         emptyHint:'Brak pozycji — wybierz datę i naciśnij +',
         newRecipient:'+ Nowy odbiorca',
@@ -2084,7 +2146,7 @@
         sendEmail:'Skicka e-post', sendOk:'Skickat ✓', sendFail:'Sändning misslyckades', noEmail:'Ingen e-postadress',
         clearData:'Rensa lokal data',
         lblAnschreiben:'inledningstext', lblGruss:'avslutningsformel', lblCurrency:'valuta',
-        lblDigitalsign:'digital signatur', lblImpressum:'impressum-länk',
+        lblDigitalsign:'digital signatur',
         presetsLabel:'vad (till)', save:'Spara',
         emptyHint:'Inga poster — välj datum och tryck +',
         newRecipient:'+ Ny mottagare',
@@ -2113,7 +2175,7 @@
         sendEmail:'メールで送信', sendOk:'送信済み ✓', sendFail:'送信失敗', noEmail:'メールアドレスなし',
         clearData:'ローカルデータを削除',
         lblAnschreiben:'本文', lblGruss:'結び', lblCurrency:'通貨',
-        lblDigitalsign:'デジタル署名', lblImpressum:'法的情報リンク',
+        lblDigitalsign:'デジタル署名',
         presetsLabel:'何（用途）', save:'保存',
         emptyHint:'項目なし — 日付を選んで + を押してください',
         newRecipient:'+ 新しい宛先',
@@ -2153,7 +2215,7 @@
       });
       const todayBtn = document.getElementById('wannTodayBtn');
       if (todayBtn && tr.today) todayBtn.dataset.tooltip = tr.today;
-      buildRecipientDropdown();
+      syncRecipientArrow();
       updateSendBtn();
     }
 
