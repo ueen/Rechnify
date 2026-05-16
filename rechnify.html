@@ -292,26 +292,24 @@
       display: flex;
       flex-direction: column;
       margin-top: 12px;
+      position: relative;
     }
+    /* first field: no extra margin; email field (follows .or-divider) gets normal gap */
     .addr-or-email .field { margin-top: 0 !important; }
+    .or-divider + .field  { margin-top: 12px !important; }
     .addr-or-email + .field { margin-top: 12px; }
+    /* top is set precisely by positionOrDividers() in JS */
     .or-divider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 8px 0;
+      position: absolute;
+      left: 0; right: 0;
+      transform: translateY(-50%);
+      text-align: center;
       font-size: 11px;
       font-weight: 500;
       color: var(--text-muted);
+      opacity: 0.45;
       pointer-events: none;
       user-select: none;
-    }
-    .or-divider::before,
-    .or-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
     }
 
     .item-rm {
@@ -1176,7 +1174,23 @@
 
       applyLang(currentLang);
       document.body.classList.add('ready');
+      positionOrDividers();
     }
+
+    // ── Or-divider positioning (pixel-exact, centered between the two input boxes) ──
+    function positionOrDividers() {
+      document.querySelectorAll('.addr-or-email').forEach(c => {
+        const divider = c.querySelector('.or-divider');
+        if (!divider) return;
+        const inputs = c.querySelectorAll('input');
+        if (inputs.length < 2) return;
+        const cTop     = c.getBoundingClientRect().top;
+        const bottom1  = inputs[0].getBoundingClientRect().bottom;
+        const top2     = inputs[1].getBoundingClientRect().top;
+        divider.style.top = Math.round((bottom1 + top2) / 2 - cTop) + 'px';
+      });
+    }
+    window.addEventListener('resize', positionOrDividers);
 
     // ── Theme toggle ───────────────────────────────────────────────────────────
     const moonSVG = `<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`;
