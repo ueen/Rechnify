@@ -962,6 +962,31 @@
         });
         document.getElementById('wannCalBtn').addEventListener('click', () => fp.toggle());
         document.getElementById('wannTodayBtn').addEventListener('click', () => { fp.setDate(new Date(), true); fp.close(); });
+
+        // Auto-format: digits only, insert dots after day/month
+        const wannInEl = document.getElementById('wannIn');
+        wannInEl.addEventListener('keydown', e => {
+          if (['Backspace','Delete','Tab','Escape','Home','End'].includes(e.key) || e.ctrlKey || e.metaKey) return;
+          if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
+            e.preventDefault();
+            fp.setDate(new Date(), true); fp.close();
+            return;
+          }
+          if (!/\d/.test(e.key)) {
+            e.preventDefault();
+            if (e.key === ' ' || /^[a-zA-Z]$/.test(e.key)) { fp.setDate(new Date(), true); fp.close(); }
+          }
+        });
+        wannInEl.addEventListener('input', () => {
+          const pos = wannInEl.selectionStart;
+          const raw = wannInEl.value.replace(/\D/g, '').slice(0, 8);
+          let fmt = raw;
+          if (raw.length > 2) fmt = raw.slice(0,2) + '.' + raw.slice(2);
+          if (raw.length > 4) fmt = raw.slice(0,2) + '.' + raw.slice(2,4) + '.' + raw.slice(4);
+          wannInEl.value = fmt;
+          // Parse into flatpickr when we have a full date
+          if (raw.length === 8) fp.setDate(fmt, false);
+        });
       }
 
       applyLang(currentLang);
