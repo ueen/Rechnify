@@ -120,7 +120,7 @@
     }
     .card-label {
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 600;
       letter-spacing: .06em;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -295,8 +295,9 @@
       margin-top: 12px;
       position: relative;
     }
-    /* first field: no extra margin; email field (follows .or-divider) gets normal gap */
+    /* first field: no extra margin; subsequent fields get normal gap */
     .addr-or-email .field { margin-top: 0 !important; }
+    .addr-or-email .field + .field { margin-top: 12px !important; }
     .or-divider + .field  { margin-top: 12px !important; }
     .addr-or-email + .field { margin-top: 12px; }
     /* top is set precisely by positionOrDividers() in JS */
@@ -872,7 +873,6 @@
 
       <div class="recipient-fields" id="recipientFields">
         <div class="field">
-          <label for="rName" data-i18n="nameOrg">Name / Organisation</label>
           <div class="recipient-name-row">
             <div class="combobox-wrap">
               <input type="text" id="rName" data-i18n-ph="rNamePh" placeholder="z.B. Musterverein e.V." autocomplete="off">
@@ -891,7 +891,6 @@
             <label for="rAddr" data-i18n="addr">adresse</label>
             <input type="text" id="rAddr" data-i18n-ph="addrPh" placeholder="Straße Nr, PLZ Ort" autocomplete="off">
           </div>
-          <span class="or-divider" data-i18n="andOr">und / oder</span>
           <div class="field">
             <label for="rEmail" data-i18n="email">e-mail</label>
             <input type="email" id="rEmail" data-i18n-ph="emailPh" placeholder="name@example.de" autocomplete="off">
@@ -1009,7 +1008,7 @@
   </main>
 
   <footer>
-    <a id="impLink" href="#" target="_blank" style="display:none">Impressum</a>
+    <a id="impLink" href="" target="_blank" style="display:none">Impressum</a>
     <span id="impSep" style="display:none">&nbsp;·&nbsp;</span>
     <a href="https://github.com/ueen/Rechnify" target="_blank">GitHub</a>
   </footer>
@@ -1803,11 +1802,9 @@
       const url  = v.impressum || '';
       const link = document.getElementById('impLink');
       const sep  = document.getElementById('impSep');
-      if (url) {
-        link.href = url; link.style.display = ''; sep.style.display = '';
-      } else {
-        link.style.display = 'none'; sep.style.display = 'none';
-      }
+      link.style.display = url ? 'inline' : 'none';
+      sep.style.display  = url ? 'inline' : 'none';
+      if (url) link.href = url;
     }
 
     // ── Settings modal ─────────────────────────────────────────────────────────
@@ -1925,7 +1922,7 @@
         enterIban:'Bitte IBAN eingeben', enterRecipient:'Bitte Empfänger eingeben',
         pdfReady:'PDF wird heruntergeladen ✓', settingsSaved:'Einstellungen gespeichert',
         invoice:'RECHNUNG', invoiceNr:'Nr.', invoiceTo:'An',
-        invoiceSubject:(nr,d)=>`Rechnung ${nr} am ${d}`, cashPayment:'Auszahlung in bar.',
+        invoiceSubject:(nr,d)=>`${nr} vom ${d}`, cashPayment:'Auszahlung in bar.',
         rNamePh:'z.B. Beispiel e.V.', addrPh:'Straße Nr, PLZ Ort',
         emailPh:'name@example.de', myEmailPh:'meine@email.de',
         myNamePh:'Dein Name', ibanPh:'DE00 0000 0000 0000 0000 00',
@@ -1954,7 +1951,7 @@
         enterIban:'Please enter your IBAN', enterRecipient:'Please enter a recipient',
         pdfReady:'PDF downloading ✓', settingsSaved:'Settings saved',
         invoice:'INVOICE', invoiceNr:'No.', invoiceTo:'To',
-        invoiceSubject:(nr,d)=>`Invoice ${nr} date ${d}`, cashPayment:'Payment in cash.',
+        invoiceSubject:(nr,d)=>`${nr} dated ${d}`, cashPayment:'Payment in cash.',
         rNamePh:'e.g. Example Corp.', addrPh:'Street, ZIP City',
         emailPh:'name@example.com', myEmailPh:'my@email.com',
         myNamePh:'Your name', ibanPh:'GB00 0000 0000 0000 0000 00',
@@ -1983,7 +1980,7 @@
         enterIban:'Veuillez saisir votre IBAN', enterRecipient:'Veuillez saisir un destinataire',
         pdfReady:'PDF en téléchargement ✓', settingsSaved:'Paramètres enregistrés',
         invoice:'FACTURE', invoiceNr:'N°', invoiceTo:'À',
-        invoiceSubject:(nr,d)=>`Facture ${nr} le ${d}`, cashPayment:'Paiement en espèces.',
+        invoiceSubject:(nr,d)=>`${nr} du ${d}`, cashPayment:'Paiement en espèces.',
         rNamePh:'ex. Association Exemple', addrPh:'Rue N°, CP Ville',
         emailPh:'nom@exemple.fr', myEmailPh:'moi@exemple.fr',
         myNamePh:'Ton nom', ibanPh:'FR00 0000 0000 0000 0000 000 00',
@@ -2012,7 +2009,7 @@
         enterIban:'Introduce tu IBAN', enterRecipient:'Introduce un destinatario',
         pdfReady:'PDF descargando ✓', settingsSaved:'Ajustes guardados',
         invoice:'FACTURA', invoiceNr:'N.°', invoiceTo:'A',
-        invoiceSubject:(nr,d)=>`Factura ${nr} fecha ${d}`, cashPayment:'Pago en efectivo.',
+        invoiceSubject:(nr,d)=>`${nr} del ${d}`, cashPayment:'Pago en efectivo.',
         rNamePh:'p. ej. Empresa Ejemplo S.L.', addrPh:'Calle N.°, CP Ciudad',
         emailPh:'nombre@ejemplo.es', myEmailPh:'yo@ejemplo.es',
         myNamePh:'Tu nombre', ibanPh:'ES00 0000 0000 0000 0000 0000',
@@ -2041,7 +2038,7 @@
         enterIban:'Inserisci il tuo IBAN', enterRecipient:'Inserisci un destinatario',
         pdfReady:'PDF in download ✓', settingsSaved:'Impostazioni salvate',
         invoice:'FATTURA', invoiceNr:'N.', invoiceTo:'A',
-        invoiceSubject:(nr,d)=>`Fattura ${nr} del ${d}`, cashPayment:'Pagamento in contanti.',
+        invoiceSubject:(nr,d)=>`${nr} del ${d}`, cashPayment:'Pagamento in contanti.',
         rNamePh:'es. Associazione Esempio', addrPh:'Via N., CAP Città',
         emailPh:'nome@esempio.it', myEmailPh:'io@esempio.it',
         myNamePh:'Il tuo nome', ibanPh:'IT00 0000 0000 0000 0000 000 0',
@@ -2070,7 +2067,7 @@
         enterIban:'Insere o teu IBAN', enterRecipient:'Insere um destinatário',
         pdfReady:'PDF a descarregar ✓', settingsSaved:'Definições guardadas',
         invoice:'FATURA', invoiceNr:'N.º', invoiceTo:'Para',
-        invoiceSubject:(nr,d)=>`Fatura ${nr} de ${d}`, cashPayment:'Pagamento em numerário.',
+        invoiceSubject:(nr,d)=>`${nr} de ${d}`, cashPayment:'Pagamento em numerário.',
         rNamePh:'ex. Associação Exemplo', addrPh:'Rua N.º, CP Cidade',
         emailPh:'nome@exemplo.pt', myEmailPh:'eu@exemplo.pt',
         myNamePh:'O teu nome', ibanPh:'PT00 0000 0000 0000 0000 000 0',
@@ -2099,7 +2096,7 @@
         enterIban:'Voer uw IBAN in', enterRecipient:'Voer een ontvanger in',
         pdfReady:'PDF wordt gedownload ✓', settingsSaved:'Instellingen opgeslagen',
         invoice:'FACTUUR', invoiceNr:'Nr.', invoiceTo:'Aan',
-        invoiceSubject:(nr,d)=>`Factuur ${nr} d.d. ${d}`, cashPayment:'Betaling in contanten.',
+        invoiceSubject:(nr,d)=>`${nr} d.d. ${d}`, cashPayment:'Betaling in contanten.',
         rNamePh:'bijv. Voorbeeld Vereniging', addrPh:'Straat Nr, Postcode Plaats',
         emailPh:'naam@voorbeeld.nl', myEmailPh:'ik@voorbeeld.nl',
         myNamePh:'Jouw naam', ibanPh:'NL00 XXXX 0000 0000 00',
@@ -2128,7 +2125,7 @@
         enterIban:'Wpisz swój IBAN', enterRecipient:'Wpisz odbiorcę',
         pdfReady:'PDF jest pobierany ✓', settingsSaved:'Ustawienia zapisane',
         invoice:'FAKTURA', invoiceNr:'Nr', invoiceTo:'Do',
-        invoiceSubject:(nr,d)=>`Faktura ${nr} z dnia ${d}`, cashPayment:'Płatność gotówką.',
+        invoiceSubject:(nr,d)=>`${nr} z dnia ${d}`, cashPayment:'Płatność gotówką.',
         rNamePh:'np. Stowarzyszenie Przykład', addrPh:'Ulica Nr, Kod Miasto',
         emailPh:'nazwa@przyklad.pl', myEmailPh:'ja@przyklad.pl',
         myNamePh:'Twoje imię', ibanPh:'PL00 0000 0000 0000 0000 0000 0000',
@@ -2157,7 +2154,7 @@
         enterIban:'Ange ditt IBAN', enterRecipient:'Ange en mottagare',
         pdfReady:'PDF laddas ner ✓', settingsSaved:'Inställningar sparade',
         invoice:'FAKTURA', invoiceNr:'Nr.', invoiceTo:'Till',
-        invoiceSubject:(nr,d)=>`Faktura ${nr} datum ${d}`, cashPayment:'Betalning kontant.',
+        invoiceSubject:(nr,d)=>`${nr} den ${d}`, cashPayment:'Betalning kontant.',
         rNamePh:'t.ex. Exempelförening', addrPh:'Gata Nr, Postnr Stad',
         emailPh:'namn@exempel.se', myEmailPh:'jag@exempel.se',
         myNamePh:'Ditt namn', ibanPh:'SE00 0000 0000 0000 0000 0000',
@@ -2186,7 +2183,7 @@
         enterIban:'口座情報を入力してください', enterRecipient:'宛先を入力してください',
         pdfReady:'PDF をダウンロード中 ✓', settingsSaved:'設定を保存しました',
         invoice:'請求書', invoiceNr:'番号', invoiceTo:'宛先',
-        invoiceSubject:(nr,d)=>`請求書 ${nr}　${d}`, cashPayment:'現金払い。',
+        invoiceSubject:(nr,d)=>`${nr}　${d}`, cashPayment:'現金払い。',
         rNamePh:'例：サンプル株式会社', addrPh:'住所',
         emailPh:'name@example.com', myEmailPh:'jibun@example.com',
         myNamePh:'お名前', ibanPh:'口座番号',
