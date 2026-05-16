@@ -8,9 +8,12 @@
 
   [![Release](https://img.shields.io/github/v/release/ueen/Rechnify)](https://github.com/ueen/Rechnify/releases/latest)
   [![License](https://img.shields.io/github/license/ueen/Rechnify)](LICENSE)
+  [![Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ueen.github.io/Rechnify/)
 </div>
 
 ---
+
+**[→ Live demo](https://ueen.github.io/Rechnify/)**
 
 Built for sending small invoices to nonprofits and clubs. Fill in who, what and when — Rechnify generates a clean PDF. Optionally send it straight by e-mail.
 

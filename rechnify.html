@@ -181,7 +181,7 @@
     }
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
     input[type="email"]::-webkit-contacts-auto-fill-button,
     input[type="email"]::-webkit-credentials-auto-fill-button { visibility: hidden; }
     select {
@@ -911,7 +911,6 @@
           <label for="myAddr" data-i18n="addr">adresse</label>
           <input type="text" id="myAddr" data-i18n-ph="addrPh" placeholder="Straße Nr, PLZ Ort" autocomplete="street-address">
         </div>
-        <span class="or-divider" data-i18n="andOr">und / oder</span>
         <div class="field">
           <label for="myEmail" data-i18n="email">e-mail</label>
           <input type="email" id="myEmail" data-i18n-ph="myEmailPh" placeholder="meine@email.de" autocomplete="email">
@@ -984,6 +983,21 @@
       </div>
     </div>
 
+    <!-- ── Rechnungsnummer ── -->
+    <div class="card">
+      <div class="card-label" data-i18n="invoiceNrLabel">Rechnungsnummer</div>
+      <div style="display:flex;gap:10px">
+        <div class="field" style="flex:1">
+          <label for="rNrIn" data-i18n="invoiceNrFieldLabel">Nummer</label>
+          <input type="text" id="rNrIn" placeholder="2026/1" autocomplete="off">
+        </div>
+        <div class="field" style="flex:1">
+          <label for="dateLetterIn" data-i18n="invoiceDateLabel">Datum</label>
+          <input type="text" id="dateLetterIn" data-i18n-ph="datePh" placeholder="TT.MM.JJJJ" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
     <!-- ── Betreff ── -->
     <div class="card">
       <div class="card-label" data-i18n="note">Notiz</div>
@@ -1008,8 +1022,8 @@
   </main>
 
   <footer>
-    <a id="impLink" href="" target="_blank" style="display:none">Impressum</a>
-    <span id="impSep" style="display:none">&nbsp;·&nbsp;</span>
+    <a id="impLink" href="" target="_blank">Impressum</a>
+    <span id="impSep">&nbsp;·&nbsp;</span>
     <a href="https://github.com/ueen/Rechnify" target="_blank">GitHub</a>
   </footer>
 
@@ -1102,6 +1116,18 @@
       }
 
       buildWasSelect(wasPresets);
+
+      // Pre-fill invoice number for initial recipient
+      prefillInvoiceNr(firstR ? firstR.name : '');
+
+      // Pre-fill letter date
+      const todayFmt = new Date().toLocaleDateString('de-DE');
+      document.getElementById('dateLetterIn').value = todayFmt;
+
+      // Mark invoice number as user-edited when touched
+      document.getElementById('rNrIn').addEventListener('input', function() {
+        this.dataset.userEdited = '1';
+      });
 
       // Load sender from cookies
       document.getElementById('myName').value  = getCookie('myName');
@@ -1283,6 +1309,8 @@
           document.getElementById('headerSub').textContent = '@ ' + r.name;
           dropdown.classList.remove('open');
           updateSendBtn();
+          delete document.getElementById('rNrIn').dataset.userEdited;
+          prefillInvoiceNr(r.name);
         });
         dropdown.appendChild(opt);
       });
@@ -1314,12 +1342,38 @@
         dropdown.classList.remove('open');
         input.focus();
         updateSendBtn();
+        delete document.getElementById('rNrIn').dataset.userEdited;
+        prefillInvoiceNr('');
       });
       document.addEventListener('click', e => {
         if (!input.closest('.combobox-wrap').contains(e.target)) {
           dropdown.classList.remove('open');
         }
       });
+    }
+
+    function getInvoiceCounters() {
+      try { return JSON.parse(localStorage.getItem('invCounters') || '{}'); } catch { return {}; }
+    }
+
+    function getNextInvoiceNr(recipientName) {
+      const year = new Date().getFullYear();
+      const key  = (recipientName || '').trim() + '_' + year;
+      const n    = (getInvoiceCounters()[key] || 0) + 1;
+      return year + '/' + n;
+    }
+
+    function incrementInvoiceCounter(recipientName) {
+      const year     = new Date().getFullYear();
+      const key      = (recipientName || '').trim() + '_' + year;
+      const counters = getInvoiceCounters();
+      counters[key]  = (counters[key] || 0) + 1;
+      localStorage.setItem('invCounters', JSON.stringify(counters));
+    }
+
+    function prefillInvoiceNr(recipientName) {
+      const el = document.getElementById('rNrIn');
+      if (el && !el.dataset.userEdited) el.value = getNextInvoiceNr(recipientName);
     }
 
     function getSavedRecipients() {
@@ -1518,6 +1572,8 @@
         rName:   document.getElementById('rName').value.trim(),
         rAddr:   document.getElementById('rAddr').value.trim(),
         rEmail:  document.getElementById('rEmail').value.trim(),
+        rNr:     document.getElementById('rNrIn').value.trim(),
+        dateStr: document.getElementById('dateLetterIn').value.trim(),
         note:    document.getElementById('noteIn').value.trim(),
         isCash:  paymentMode === 'bar',
       };
@@ -1540,6 +1596,7 @@
       if (!d.rName)                err(document.getElementById('rName'));
       if (!d.rAddr && !d.rEmail)   { err(document.getElementById('rAddr')); err(document.getElementById('rEmail')); }
       if (!items.length)           err(document.getElementById('wasSel'));
+      if (!d.rNr)                  err(document.getElementById('rNrIn'));
 
       if (invalid) { return false; }
       return true;
@@ -1569,6 +1626,10 @@
       setCookie('myIban', d.myIban);
       saveRecipient(d.rName, d.rAddr, d.rEmail);
       syncRecipientArrow();
+      incrementInvoiceCounter(d.rName);
+      // reset userEdited flag and show next number
+      delete document.getElementById('rNrIn').dataset.userEdited;
+      prefillInvoiceNr(d.rName);
     }
 
     function handleGenerate() {
@@ -1612,7 +1673,7 @@
         form.append('to',        d.rEmail);
         form.append('from_name', d.myName);
         form.append('from_addr', d.myEmail || '');
-        form.append('subject',   `${t().invoice} – ${d.myName}`);
+        form.append('subject',   `${t().invoiceSubject(d.rNr, d.dateStr)} – ${d.myName}`);
         form.append('body',      vorlage.letter || '');
         form.append('gruss',     vorlage.gruss || '');
         form.append('sender',    d.myName);
@@ -1626,17 +1687,9 @@
       }
     }
 
-    function makePDF({ myName, myAddr, myIban, rName, rAddr, note, isCash, returnUri = false, returnBoth = false }) {
+    function makePDF({ myName, myAddr, myEmail, myIban, rName, rAddr, rEmail, rNr, dateStr, note, isCash, returnUri = false, returnBoth = false }) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-
-      const today    = new Date();
-      const todayStr = today.toLocaleDateString('de-DE');
-      const q        = Math.floor(today.getMonth() / 3) + 1;
-      const qKey     = `invN_Q${q}_${today.getFullYear()}`;
-      const n        = parseInt(getCookie(qKey) || '0') + 1;
-      setCookie(qKey, n);
-      const rNr = `${n}/Q${q}-${today.getFullYear()}`;
 
       const L = 20, R = 190, W = 170;
       const BLK = [20, 20, 20];
@@ -1645,36 +1698,40 @@
       let y = 0;
 
       const sf = (size, style = 'normal', col = BLK) => {
-        doc.setFontSize(size);
-        doc.setFont('helvetica', style);
-        doc.setTextColor(...col);
+        doc.setFontSize(size); doc.setFont('helvetica', style); doc.setTextColor(...col);
       };
       const splitLines = (text, w) => doc.splitTextToSize(text, w);
-
-      // ── RECHNUNG heading (top left)
-      y = 30;
       const tr = t();
+
+      // ── RECHNUNG heading
+      y = 30;
       sf(30, 'bold');
       doc.text(tr.invoice, L, y);
       y += 6;
       sf(11, 'bold', GRY);
       doc.text(`${tr.invoiceNr} ${rNr}`, L, y);
 
-      // ── Sender block (top right) — name + each address part on own line
-      const senderParts = myAddr.split(/[,\/]/).map(s => s.trim()).filter(Boolean);
+      // ── Sender block (top right) — name, address parts, email
       let sy = 20;
       sf(10, 'bold', BLK);
       doc.text(myName, R, sy, { align: 'right' });
       sy += 5.5;
-      senderParts.forEach(part => {
+      if (myAddr) {
+        myAddr.split(/[,\/]/).map(s => s.trim()).filter(Boolean).forEach(part => {
+          sf(9, 'normal', GRY);
+          doc.text(part, R, sy, { align: 'right' });
+          sy += 5;
+        });
+      }
+      if (myEmail) {
         sf(9, 'normal', GRY);
-        doc.text(part, R, sy, { align: 'right' });
+        doc.text(myEmail, R, sy, { align: 'right' });
         sy += 5;
-      });
+      }
 
       y = Math.max(y + 8, sy) + 10;
 
-      // ── An (Empfänger) — original "An\n[name]\n[address]" structure
+      // ── Recipient block
       sf(9, 'normal', GRY);
       doc.text(tr.invoiceTo, L, y);
       y += 5.5;
@@ -1688,26 +1745,82 @@
           y += 5;
         });
       }
-      // Date right-aligned at "An" level
-      sf(9, 'normal', GRY);
-      doc.text(todayStr, R, y - 5.5 * (1 + (rAddr ? rAddr.split(/[,\/]/).filter(Boolean).length : 0)), { align: 'right' });
+      if (rEmail) {
+        sf(9, 'normal', GRY);
+        doc.text(rEmail, L, y);
+        y += 5;
+      }
 
-      y += 12;
-
-      // ── Rechnung [nr]; am [date] — original subject line
-      sf(10, 'bold', BLK);
-      doc.text(tr.invoiceSubject(rNr, todayStr), L, y);
       y += 8;
 
-      // ── Anschreiben from vorlage
+      // ── Date (one line above subject, right-aligned)
+      sf(9, 'normal', GRY);
+      doc.text(dateStr, R, y, { align: 'right' });
+      y += 6;
+
+      // ── Subject line
+      sf(10, 'bold', BLK);
+      doc.text(tr.invoiceSubject(rNr, dateStr), L, y);
+      y += 10;
+
+      // ── Letter text
       if (vorlage.letter) {
         sf(10, 'normal', BLK);
         const aLines = splitLines(vorlage.letter, W);
         doc.text(aLines, L, y);
-        y += aLines.length * 5.5 + 6;
+        y += aLines.length * 5.5 + 4;
       }
 
-      // ── Betreff / note as additional body paragraph
+      // ── Cash notice at end of letter text (before items)
+      if (isCash) {
+        sf(10, 'normal', BLK);
+        doc.text(tr.cashPayment, L, y);
+        y += 8;
+      }
+
+      // ── IBAN block (name above IBAN, before items)
+      if (!isCash && myIban) {
+        sf(10, 'normal', BLK);
+        doc.text(myName, L, y);
+        y += 5.5;
+        sf(10, 'normal', BLK);
+        doc.text(`IBAN: ${myIban}`, L, y);
+        y += 10;
+      }
+
+      y += 2;
+
+      // ── Items — label indented, dot leaders, amount left-aligned at fixed col
+      const amtX = 135;  // left edge of amount column
+      const labelX = L + 5;
+      items.forEach(item => {
+        sf(10, 'normal', BLK);
+        const amtStr = `${fmtAmount(item.amount)} ${currency}`;
+        const labelW = doc.getTextWidth(item.label);
+        const dotW   = doc.getTextWidth('.');
+        const gap    = amtX - (labelX + labelW) - 3;
+        const nDots  = Math.max(3, Math.floor(gap / dotW));
+        doc.text(item.label, labelX, y);
+        sf(10, 'normal', LGT);
+        doc.text('.'.repeat(nDots), labelX + labelW + 1.5, y);
+        sf(10, 'normal', BLK);
+        doc.text(amtStr, amtX, y);
+        y += 6.5;
+      });
+
+      // ── Total rule + amount
+      const total = items.reduce((s, i) => s + i.amount, 0);
+      y += 3;
+      doc.setDrawColor(...GRY);
+      doc.setLineWidth(0.4);
+      doc.line(amtX - 5, y, R, y);
+      doc.setLineWidth(0.2);
+      y += 6;
+      sf(12, 'bold', BLK);
+      doc.text(`${fmtAmount(total)} ${currency}`, amtX, y);
+      y += 14;
+
+      // ── Personal note (before greeting)
       if (note) {
         sf(10, 'normal', BLK);
         const nLines = splitLines(note, W);
@@ -1715,40 +1828,7 @@
         y += nLines.length * 5.5 + 6;
       }
 
-      y += 2;
-
-      // ── Items — compact: label left, amount right-aligned at col 145
-      const total = items.reduce((s, i) => s + i.amount, 0);
-      items.forEach(item => {
-        sf(10, 'normal', BLK);
-        doc.text(item.label, L, y);
-        doc.text(`${item.amount} ${currency}`, 145, y, { align: 'right' });
-        y += 6.5;
-      });
-
-      // ── Total — rule spanning right half, total right-aligned below
-      y += 3;
-      doc.setDrawColor(...GRY);
-      doc.setLineWidth(0.4);
-      doc.line(115, y, R, y);
-      doc.setLineWidth(0.2);
-      y += 6;
-      sf(12, 'bold', BLK);
-      doc.text(`${total} ${currency}`, R, y, { align: 'right' });
-      y += 14;
-
-      // ── Payment — original "IBAN: [iban]" or "Auszahlung in bar."
-      if (isCash) {
-        sf(10, 'normal', BLK);
-        doc.text(tr.cashPayment, L, y);
-        y += 10;
-      } else {
-        sf(10, 'normal', BLK);
-        doc.text(`IBAN: ${myIban}`, L, y);
-        y += 12;
-      }
-
-      // ── Gruss + Name — original closing
+      // ── Gruss + Name
       if (vorlage.gruss) {
         sf(10, 'normal', BLK);
         doc.text(vorlage.gruss, L, y);
@@ -1922,7 +2002,8 @@
         enterIban:'Bitte IBAN eingeben', enterRecipient:'Bitte Empfänger eingeben',
         pdfReady:'PDF wird heruntergeladen ✓', settingsSaved:'Einstellungen gespeichert',
         invoice:'RECHNUNG', invoiceNr:'Nr.', invoiceTo:'An',
-        invoiceSubject:(nr,d)=>`${nr} vom ${d}`, cashPayment:'Auszahlung in bar.',
+        invoiceNrLabel:'rechnungsnummer', invoiceNrFieldLabel:'nummer', invoiceDateLabel:'datum',
+        invoiceSubject:(nr,d)=>`Rechnungs-Nr. ${nr} vom ${d}`, cashPayment:'Auszahlung in bar.',
         rNamePh:'z.B. Beispiel e.V.', addrPh:'Straße Nr, PLZ Ort',
         emailPh:'name@example.de', myEmailPh:'meine@email.de',
         myNamePh:'Dein Name', ibanPh:'DE00 0000 0000 0000 0000 00',
@@ -1951,7 +2032,8 @@
         enterIban:'Please enter your IBAN', enterRecipient:'Please enter a recipient',
         pdfReady:'PDF downloading ✓', settingsSaved:'Settings saved',
         invoice:'INVOICE', invoiceNr:'No.', invoiceTo:'To',
-        invoiceSubject:(nr,d)=>`${nr} dated ${d}`, cashPayment:'Payment in cash.',
+        invoiceNrLabel:'invoice number', invoiceNrFieldLabel:'number', invoiceDateLabel:'date',
+        invoiceSubject:(nr,d)=>`Invoice No. ${nr} dated ${d}`, cashPayment:'Payment in cash.',
         rNamePh:'e.g. Example Corp.', addrPh:'Street, ZIP City',
         emailPh:'name@example.com', myEmailPh:'my@email.com',
         myNamePh:'Your name', ibanPh:'GB00 0000 0000 0000 0000 00',
@@ -1980,7 +2062,8 @@
         enterIban:'Veuillez saisir votre IBAN', enterRecipient:'Veuillez saisir un destinataire',
         pdfReady:'PDF en téléchargement ✓', settingsSaved:'Paramètres enregistrés',
         invoice:'FACTURE', invoiceNr:'N°', invoiceTo:'À',
-        invoiceSubject:(nr,d)=>`${nr} du ${d}`, cashPayment:'Paiement en espèces.',
+        invoiceNrLabel:'numéro de facture', invoiceNrFieldLabel:'numéro', invoiceDateLabel:'date',
+        invoiceSubject:(nr,d)=>`Facture n° ${nr} du ${d}`, cashPayment:'Paiement en espèces.',
         rNamePh:'ex. Association Exemple', addrPh:'Rue N°, CP Ville',
         emailPh:'nom@exemple.fr', myEmailPh:'moi@exemple.fr',
         myNamePh:'Ton nom', ibanPh:'FR00 0000 0000 0000 0000 000 00',
@@ -2009,7 +2092,8 @@
         enterIban:'Introduce tu IBAN', enterRecipient:'Introduce un destinatario',
         pdfReady:'PDF descargando ✓', settingsSaved:'Ajustes guardados',
         invoice:'FACTURA', invoiceNr:'N.°', invoiceTo:'A',
-        invoiceSubject:(nr,d)=>`${nr} del ${d}`, cashPayment:'Pago en efectivo.',
+        invoiceNrLabel:'número de factura', invoiceNrFieldLabel:'número', invoiceDateLabel:'fecha',
+        invoiceSubject:(nr,d)=>`Factura n.° ${nr} del ${d}`, cashPayment:'Pago en efectivo.',
         rNamePh:'p. ej. Empresa Ejemplo S.L.', addrPh:'Calle N.°, CP Ciudad',
         emailPh:'nombre@ejemplo.es', myEmailPh:'yo@ejemplo.es',
         myNamePh:'Tu nombre', ibanPh:'ES00 0000 0000 0000 0000 0000',
@@ -2038,7 +2122,8 @@
         enterIban:'Inserisci il tuo IBAN', enterRecipient:'Inserisci un destinatario',
         pdfReady:'PDF in download ✓', settingsSaved:'Impostazioni salvate',
         invoice:'FATTURA', invoiceNr:'N.', invoiceTo:'A',
-        invoiceSubject:(nr,d)=>`${nr} del ${d}`, cashPayment:'Pagamento in contanti.',
+        invoiceNrLabel:'numero fattura', invoiceNrFieldLabel:'numero', invoiceDateLabel:'data',
+        invoiceSubject:(nr,d)=>`Fattura n. ${nr} del ${d}`, cashPayment:'Pagamento in contanti.',
         rNamePh:'es. Associazione Esempio', addrPh:'Via N., CAP Città',
         emailPh:'nome@esempio.it', myEmailPh:'io@esempio.it',
         myNamePh:'Il tuo nome', ibanPh:'IT00 0000 0000 0000 0000 000 0',
@@ -2067,7 +2152,8 @@
         enterIban:'Insere o teu IBAN', enterRecipient:'Insere um destinatário',
         pdfReady:'PDF a descarregar ✓', settingsSaved:'Definições guardadas',
         invoice:'FATURA', invoiceNr:'N.º', invoiceTo:'Para',
-        invoiceSubject:(nr,d)=>`${nr} de ${d}`, cashPayment:'Pagamento em numerário.',
+        invoiceNrLabel:'número de fatura', invoiceNrFieldLabel:'número', invoiceDateLabel:'data',
+        invoiceSubject:(nr,d)=>`Fatura n.º ${nr} de ${d}`, cashPayment:'Pagamento em numerário.',
         rNamePh:'ex. Associação Exemplo', addrPh:'Rua N.º, CP Cidade',
         emailPh:'nome@exemplo.pt', myEmailPh:'eu@exemplo.pt',
         myNamePh:'O teu nome', ibanPh:'PT00 0000 0000 0000 0000 000 0',
@@ -2096,7 +2182,8 @@
         enterIban:'Voer uw IBAN in', enterRecipient:'Voer een ontvanger in',
         pdfReady:'PDF wordt gedownload ✓', settingsSaved:'Instellingen opgeslagen',
         invoice:'FACTUUR', invoiceNr:'Nr.', invoiceTo:'Aan',
-        invoiceSubject:(nr,d)=>`${nr} d.d. ${d}`, cashPayment:'Betaling in contanten.',
+        invoiceNrLabel:'factuurnummer', invoiceNrFieldLabel:'nummer', invoiceDateLabel:'datum',
+        invoiceSubject:(nr,d)=>`Factuur nr. ${nr} d.d. ${d}`, cashPayment:'Betaling in contanten.',
         rNamePh:'bijv. Voorbeeld Vereniging', addrPh:'Straat Nr, Postcode Plaats',
         emailPh:'naam@voorbeeld.nl', myEmailPh:'ik@voorbeeld.nl',
         myNamePh:'Jouw naam', ibanPh:'NL00 XXXX 0000 0000 00',
@@ -2125,7 +2212,8 @@
         enterIban:'Wpisz swój IBAN', enterRecipient:'Wpisz odbiorcę',
         pdfReady:'PDF jest pobierany ✓', settingsSaved:'Ustawienia zapisane',
         invoice:'FAKTURA', invoiceNr:'Nr', invoiceTo:'Do',
-        invoiceSubject:(nr,d)=>`${nr} z dnia ${d}`, cashPayment:'Płatność gotówką.',
+        invoiceNrLabel:'numer faktury', invoiceNrFieldLabel:'numer', invoiceDateLabel:'data',
+        invoiceSubject:(nr,d)=>`Faktura nr ${nr} z dnia ${d}`, cashPayment:'Płatność gotówką.',
         rNamePh:'np. Stowarzyszenie Przykład', addrPh:'Ulica Nr, Kod Miasto',
         emailPh:'nazwa@przyklad.pl', myEmailPh:'ja@przyklad.pl',
         myNamePh:'Twoje imię', ibanPh:'PL00 0000 0000 0000 0000 0000 0000',
@@ -2154,7 +2242,8 @@
         enterIban:'Ange ditt IBAN', enterRecipient:'Ange en mottagare',
         pdfReady:'PDF laddas ner ✓', settingsSaved:'Inställningar sparade',
         invoice:'FAKTURA', invoiceNr:'Nr.', invoiceTo:'Till',
-        invoiceSubject:(nr,d)=>`${nr} den ${d}`, cashPayment:'Betalning kontant.',
+        invoiceNrLabel:'fakturanummer', invoiceNrFieldLabel:'nummer', invoiceDateLabel:'datum',
+        invoiceSubject:(nr,d)=>`Faktura nr. ${nr} den ${d}`, cashPayment:'Betalning kontant.',
         rNamePh:'t.ex. Exempelförening', addrPh:'Gata Nr, Postnr Stad',
         emailPh:'namn@exempel.se', myEmailPh:'jag@exempel.se',
         myNamePh:'Ditt namn', ibanPh:'SE00 0000 0000 0000 0000 0000',
@@ -2183,7 +2272,8 @@
         enterIban:'口座情報を入力してください', enterRecipient:'宛先を入力してください',
         pdfReady:'PDF をダウンロード中 ✓', settingsSaved:'設定を保存しました',
         invoice:'請求書', invoiceNr:'番号', invoiceTo:'宛先',
-        invoiceSubject:(nr,d)=>`${nr}　${d}`, cashPayment:'現金払い。',
+        invoiceNrLabel:'請求書番号', invoiceNrFieldLabel:'番号', invoiceDateLabel:'日付',
+        invoiceSubject:(nr,d)=>`請求書 ${nr}　${d}`, cashPayment:'現金払い。',
         rNamePh:'例：サンプル株式会社', addrPh:'住所',
         emailPh:'name@example.com', myEmailPh:'jibun@example.com',
         myNamePh:'お名前', ibanPh:'口座番号',
