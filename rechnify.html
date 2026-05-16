@@ -454,6 +454,7 @@
 
     /* ── Settings button (same style as theme btn) ── */
     #settingsBtn {
+      margin-left: auto;
       width: 36px;
       height: 36px;
       border-radius: 8px;
@@ -704,7 +705,7 @@
           <input type="url" id="sImpressum" placeholder="https://example.com/impressum">
         </div>
 
-        <div class="modal-section-label">Positionen (Wofür)</div>
+        <div class="modal-section-label">Posten (Wofür)</div>
         <div class="preset-list" id="presetList"></div>
         <div class="preset-add">
           <input type="text"   id="presetName"  placeholder="Bezeichnung" autocomplete="off">
@@ -764,9 +765,9 @@
       </div>
     </div>
 
-    <!-- ── Positionen ── -->
+    <!-- ── Posten ── -->
     <div class="card">
-      <div class="card-label">Positionen</div>
+      <div class="card-label">Posten</div>
 
       <div class="picker-top">
         <div class="field">
@@ -804,7 +805,7 @@
         <button type="button" class="icon-btn btn-rm"  id="rmBtn"  title="Entfernen">−</button>
       </div>
 
-      <p class="empty-hint" id="emptyHint">Noch keine Positionen — Datum wählen und + drücken</p>
+      <p class="empty-hint" id="emptyHint">Noch keine Posten — Datum wählen und + drücken</p>
       <ul class="item-list" id="itemList"></ul>
 
       <div class="total-bar" id="totalBar" style="display:none">
@@ -1157,7 +1158,7 @@
       if (!myAddr) { shake(document.getElementById('myAddr')); showToast('Bitte Adresse eingeben'); return; }
       if (paymentMode === 'iban' && !myIban) { shake(document.getElementById('myIban')); showToast('Bitte IBAN eingeben'); return; }
       if (!rName)  { shake(document.getElementById('rName'));  showToast('Bitte Empfänger eingeben'); return; }
-      if (!items.length) { showToast('Noch keine Positionen hinzugefügt'); return; }
+      if (!items.length) { showToast('Noch keine Posten hinzugefügt'); return; }
 
       setCookie('myName', myName);
       setCookie('myAddr', myAddr);
