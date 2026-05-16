@@ -97,24 +97,21 @@ E-mail is **off by default**. To enable:
 
 ```php
 $password   = '';              // Set if pw_protect is true
-$from_email = 'invoices@yourdomain.com';  // From address; leave blank for noreply@host
+$from_email = 'you@yourdomain.com';  // From address; leave blank for noreply@host
 ```
 
 When `enable_email` is true and the recipient has an e-mail address:
 - The generate button switches to **Preview** — opens the PDF in a new browser tab
-- A **Send by e-mail** button appears below it
-- Clicking Send posts the PDF to `send.php` via PHP's `mail()`
+- A **Send by e-mail** button appears below it; clicking it sends the PDF via PHP's `mail()`
 - Your own e-mail (if entered) is added as **CC**
 
 ### SMTP (optional)
 
-`send.php` uses PHP's built-in `mail()` by default. To use SMTP, install [PHPMailer](https://github.com/PHPMailer/PHPMailer) and follow the commented block at the top of `send.php`:
+`send.php` uses PHP's built-in `mail()` by default, which works on any server with `sendmail` configured. For SMTP, install [PHPMailer](https://github.com/PHPMailer/PHPMailer) and follow the commented block at the top of `send.php`:
 
 ```bash
 composer require phpmailer/phpmailer
 ```
-
-Then uncomment and fill in the SMTP block in `send.php`.
 
 ---
 

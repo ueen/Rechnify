@@ -296,16 +296,22 @@
     .addr-or-email .field { margin-top: 0 !important; }
     .addr-or-email + .field { margin-top: 12px; }
     .or-divider {
-      display: block;
-      text-align: center;
-      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+      font-size: 11px;
       font-weight: 500;
       color: var(--text-muted);
-      opacity: 0.5;
-      /* padding-top compensates for email label height so divider centers between inputs */
-      padding: 26px 0 2px;
       pointer-events: none;
       user-select: none;
+    }
+    .or-divider::before,
+    .or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
     }
 
     .item-rm {

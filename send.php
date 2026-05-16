@@ -1,20 +1,23 @@
 <?php
 // ── Configuration ────────────────────────────────────────────────────────────
 $password   = '';   // Required when pw_protect: true in vorlage.json
-$from_email = '';   // Sender address, e.g. 'invoices@yourdomain.com'
+$from_email = '';   // From address, e.g. 'invoices@yourdomain.com'
                     // Leave blank to use noreply@<your-host>
 
 // ── SMTP via PHPMailer (optional) ────────────────────────────────────────────
 // Install: composer require phpmailer/phpmailer
-// Then uncomment and fill in the block below, and remove the mail() call further down.
+// Then replace the mail() call below with the PHPMailer block.
 //
 // require 'vendor/autoload.php';
 // use PHPMailer\PHPMailer\PHPMailer;
-// use PHPMailer\PHPMailer\SMTP;
-// $smtp_host = 'smtp.example.com';
-// $smtp_user = 'user@example.com';
-// $smtp_pass = 'secret';
-// $smtp_port = 587;
+// $mail = new PHPMailer(true);
+// $mail->isSMTP();
+// $mail->Host       = 'smtp.example.com';
+// $mail->SMTPAuth   = true;
+// $mail->Username   = 'you@example.com';
+// $mail->Password   = 'secret';
+// $mail->SMTPSecure = 'tls';
+// $mail->Port       = 587;
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Password verification ─────────────────────────────────────────────────────
