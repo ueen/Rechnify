@@ -1,8 +1,16 @@
 {
-  "anschreiben": "Sehr geehrte Damen und Herren, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen Überweiseung an die unten angegebende IBAN.",
+  "letter": "Sehr geehrte Damen und Herren, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen Überweiseung an die unten angegebende IBAN.",
   "gruss": "Mit freundlichen Grüßen",
   "currency": "€",
   "digitalsign": "--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---",
   "impressum": "https://www.example.com/impressum/",
-  "pw_protect": false
+  "pw_protect": false,
+  "enable_email": false,
+  "items": {
+    "Interview": 60,
+    "Lesson": 30
+  },
+  "recipients": [
+    { "name": "Beispiel e.V.", "address": "Beispielstraße 1, 12345 Beispielstadt", "email": "beispiel@example.com" }
+  ]
 }
