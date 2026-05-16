@@ -369,19 +369,21 @@
     }
     .date-wrap input {
       width: 100%;
-      padding-right: 42px;
+      padding-right: 80px;
       cursor: text;
     }
-    .date-cal-btn {
+    .date-cal-btn, .date-today-btn {
       position: absolute;
-      right: 0; top: 0;
-      height: 100%; width: 42px;
+      top: 0;
+      height: 100%; width: 38px;
       border: none; background: transparent;
       color: var(--text-muted);
       cursor: pointer;
       display: grid; place-items: center;
     }
-    .date-cal-btn:hover { color: var(--text-dim); }
+    .date-cal-btn { right: 0; }
+    .date-today-btn { right: 38px; border-right: 1px solid var(--border); }
+    .date-cal-btn:hover, .date-today-btn:hover { color: var(--primary); }
 
     /* ── Segmented toggle ── */
     .seg-toggle {
@@ -683,16 +685,16 @@
     <span class="header-title">Rechnify</span>
     <span class="header-sub" id="headerSub"></span>
     <select id="langSel" class="lang-sel" aria-label="Language">
-      <option value="de">🇩🇪 DE</option>
-      <option value="en">🇬🇧 EN</option>
-      <option value="fr">🇫🇷 FR</option>
-      <option value="es">🇪🇸 ES</option>
-      <option value="it">🇮🇹 IT</option>
-      <option value="pt">🇵🇹 PT</option>
-      <option value="nl">🇳🇱 NL</option>
-      <option value="pl">🇵🇱 PL</option>
-      <option value="sv">🇸🇪 SV</option>
-      <option value="ja">🇯🇵 JA</option>
+      <option value="de">DE</option>
+      <option value="en">EN</option>
+      <option value="fr">FR</option>
+      <option value="es">ES</option>
+      <option value="it">IT</option>
+      <option value="pt">PT</option>
+      <option value="nl">NL</option>
+      <option value="pl">PL</option>
+      <option value="sv">SV</option>
+      <option value="ja">JA</option>
     </select>
     <button id="settingsBtn" title="Einstellungen" aria-label="Einstellungen öffnen">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -827,8 +829,14 @@
           <label for="wannIn" data-i18n="whenWas">Wann wars</label>
           <div class="date-wrap">
             <input type="text" id="wannIn" placeholder="TT.MM.JJJJ" autocomplete="off">
+            <button type="button" class="date-today-btn" id="wannTodayBtn" tabindex="-1" aria-label="Heute">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                <circle cx="12" cy="16" r="2" fill="currentColor" stroke="none"/>
+              </svg>
+            </button>
             <button type="button" class="date-cal-btn" id="wannCalBtn" tabindex="-1" aria-label="Kalender öffnen">
-              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
               </svg>
             </button>
@@ -953,6 +961,7 @@
           disableMobile: false,
         });
         document.getElementById('wannCalBtn').addEventListener('click', () => fp.toggle());
+        document.getElementById('wannTodayBtn').addEventListener('click', () => { fp.setDate(new Date(), true); fp.close(); });
       }
 
       applyLang(currentLang);
