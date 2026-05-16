@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Rechnify</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -104,7 +105,7 @@
     main {
       max-width: 560px;
       margin: 0 auto;
-      padding: 20px 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -452,9 +453,29 @@
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
+    /* ── Language selector ── */
+    .lang-sel {
+      margin-left: auto;
+      height: 36px;
+      padding: 0 6px;
+      background: var(--surface2) !important;
+      border: 1.5px solid var(--border) !important;
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-size: 13px;
+      cursor: pointer;
+      flex-shrink: 0;
+      appearance: auto !important;
+      -webkit-appearance: auto !important;
+      background-image: none !important;
+      width: auto;
+      height: 36px;
+      padding-right: 6px;
+    }
+    .lang-sel:hover { background: var(--border) !important; }
+
     /* ── Settings button (same style as theme btn) ── */
     #settingsBtn {
-      margin-left: auto;
       width: 36px;
       height: 36px;
       border-radius: 8px;
@@ -661,6 +682,18 @@
     <div class="logo-mark">R</div>
     <span class="header-title">Rechnify</span>
     <span class="header-sub" id="headerSub"></span>
+    <select id="langSel" class="lang-sel" aria-label="Language">
+      <option value="de">🇩🇪 DE</option>
+      <option value="en">🇬🇧 EN</option>
+      <option value="fr">🇫🇷 FR</option>
+      <option value="es">🇪🇸 ES</option>
+      <option value="it">🇮🇹 IT</option>
+      <option value="pt">🇵🇹 PT</option>
+      <option value="nl">🇳🇱 NL</option>
+      <option value="pl">🇵🇱 PL</option>
+      <option value="sv">🇸🇪 SV</option>
+      <option value="ja">🇯🇵 JA</option>
+    </select>
     <button id="settingsBtn" title="Einstellungen" aria-label="Einstellungen öffnen">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="3"/>
@@ -678,43 +711,43 @@
   <div class="modal-overlay" id="settingsOverlay">
     <div class="modal-card" id="settingsCard" role="dialog" aria-modal="true" aria-label="Einstellungen">
       <div class="modal-header">
-        <span class="modal-title">Einstellungen</span>
+        <span class="modal-title" data-i18n="settings">Einstellungen</span>
         <button class="modal-close" id="settingsClose" aria-label="Schließen">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
       <div class="modal-body">
         <div class="field">
-          <label for="sAnschreiben">Anschreiben</label>
-          <textarea id="sAnschreiben" rows="4" placeholder="Sehr geehrte Damen und Herren…"></textarea>
+          <label for="sAnschreiben" data-i18n="lblAnschreiben">Anschreiben</label>
+          <textarea id="sAnschreiben" rows="4" data-i18n-ph="sAnschreibenPh" placeholder="Sehr geehrte Damen und Herren…"></textarea>
         </div>
         <div class="field">
-          <label for="sGruss">Grußformel</label>
-          <input type="text" id="sGruss" placeholder="Mit freundlichen Grüßen">
+          <label for="sGruss" data-i18n="lblGruss">Grußformel</label>
+          <input type="text" id="sGruss" data-i18n-ph="sGrussPh" placeholder="Mit freundlichen Grüßen">
         </div>
         <div class="field">
-          <label for="sCurrency">Währung</label>
+          <label for="sCurrency" data-i18n="lblCurrency">Währung</label>
           <input type="text" id="sCurrency" placeholder="€" style="max-width:80px">
         </div>
         <div class="field">
-          <label for="sDigitalsign">Digitale Signatur</label>
-          <input type="text" id="sDigitalsign" placeholder="--- Digital erstellt und ohne Unterschrift gültig ---">
+          <label for="sDigitalsign" data-i18n="lblDigitalsign">Digitale Signatur</label>
+          <input type="text" id="sDigitalsign" data-i18n-ph="sDigitalsignPh" placeholder="--- Digital erstellt und ohne Unterschrift gültig ---">
         </div>
         <div class="field">
-          <label for="sImpressum">Impressum-Link</label>
+          <label for="sImpressum" data-i18n="lblImpressum">Impressum-Link</label>
           <input type="url" id="sImpressum" placeholder="https://example.com/impressum">
         </div>
 
-        <div class="modal-section-label">Posten (Wofür)</div>
+        <div class="modal-section-label" data-i18n="presetsLabel">Posten (Wofür)</div>
         <div class="preset-list" id="presetList"></div>
         <div class="preset-add">
-          <input type="text"   id="presetName"  placeholder="Bezeichnung" autocomplete="off">
+          <input type="text"   id="presetName"  data-i18n-ph="presetNamePh" placeholder="Bezeichnung" autocomplete="off">
           <input type="number" id="presetPrice" placeholder="0" min="0" step="0.5" style="max-width:80px">
           <button type="button" class="preset-add-btn" id="presetAddBtn" title="Hinzufügen">+</button>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="modal-save" id="settingsSave">Speichern</button>
+        <button class="modal-save" id="settingsSave" data-i18n="save">Speichern</button>
       </div>
     </div>
   </div>
@@ -723,7 +756,7 @@
 
     <!-- ── Empfänger ── -->
     <div class="card">
-      <div class="card-label">An wen</div>
+      <div class="card-label" data-i18n="toWhom">An wen</div>
 
       <div class="field">
         <select id="recipientSel"></select>
@@ -731,32 +764,32 @@
 
       <div class="recipient-fields" id="recipientFields">
         <div class="field">
-          <label for="rName">Name / Organisation</label>
-          <input type="text" id="rName" placeholder="z.B. Musterverein e.V." autocomplete="off">
+          <label for="rName" data-i18n="nameOrg">Name / Organisation</label>
+          <input type="text" id="rName" data-i18n-ph="rNamePh" placeholder="z.B. Musterverein e.V." autocomplete="off">
         </div>
         <div class="field">
-          <label for="rAddr">Adresse / E-Mail</label>
-          <input type="text" id="rAddr" placeholder="Straße Nr, PLZ Ort  oder  name@example.de" autocomplete="off">
+          <label for="rAddr" data-i18n="addrEmail">Adresse / E-Mail</label>
+          <input type="text" id="rAddr" data-i18n-ph="addrPh" placeholder="Straße Nr, PLZ Ort  oder  name@example.de" autocomplete="off">
         </div>
       </div>
     </div>
 
     <!-- ── Von mir ── -->
     <div class="card">
-      <div class="card-label">Von mir</div>
+      <div class="card-label" data-i18n="fromMe">Von mir</div>
       <div class="field">
-        <label for="myName">Voller Name</label>
-        <input type="text" id="myName" placeholder="Dein Name" autocomplete="name">
+        <label for="myName" data-i18n="fullName">Voller Name</label>
+        <input type="text" id="myName" data-i18n-ph="myNamePh" placeholder="Dein Name" autocomplete="name">
       </div>
       <div class="field">
-        <label for="myAddr">Adresse / E-Mail</label>
-        <input type="text" id="myAddr" placeholder="Straße Nr, PLZ Ort  oder  name@example.de" autocomplete="street-address">
+        <label for="myAddr" data-i18n="addrEmail">Adresse / E-Mail</label>
+        <input type="text" id="myAddr" data-i18n-ph="addrPh" placeholder="Straße Nr, PLZ Ort  oder  name@example.de" autocomplete="street-address">
       </div>
       <div class="field">
-        <label>Zahlung</label>
+        <label data-i18n="payment">Zahlung</label>
         <div class="seg-toggle">
           <button type="button" class="seg-btn active" id="payIban">IBAN</button>
-          <button type="button" class="seg-btn"        id="payBar">Bar</button>
+          <button type="button" class="seg-btn" id="payBar" data-i18n="cash">Bar</button>
         </div>
       </div>
       <div class="field" id="ibanField">
@@ -767,13 +800,13 @@
 
     <!-- ── Posten ── -->
     <div class="card">
-      <div class="card-label">Posten</div>
+      <div class="card-label" data-i18n="items">Posten</div>
 
       <div class="picker-top">
         <div class="field">
-          <label for="wasSel">Wofür</label>
+          <label for="wasSel" data-i18n="whatFor">Wofür</label>
           <div class="combobox-wrap">
-            <input type="text" id="wasSel" placeholder="Wählen oder eingeben…" autocomplete="off">
+            <input type="text" id="wasSel" data-i18n-ph="wasSelPh" placeholder="Wählen oder eingeben…" autocomplete="off">
             <button type="button" class="combobox-arrow" id="wasArrow" tabindex="-1" aria-label="Optionen anzeigen">
               <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>
             </button>
@@ -781,7 +814,7 @@
           </div>
         </div>
         <div class="field">
-          <label for="priceIn">Wie viel</label>
+          <label for="priceIn" data-i18n="howMuch">Wie viel</label>
           <div class="price-wrap">
             <input type="number" id="priceIn" placeholder="0" min="0" step="0.5" inputmode="decimal">
             <span class="currency-tag" id="currencyTag">€</span>
@@ -791,7 +824,7 @@
 
       <div class="picker-bottom">
         <div class="field">
-          <label for="wannIn">Wann wars</label>
+          <label for="wannIn" data-i18n="whenWas">Wann wars</label>
           <div class="date-wrap">
             <input type="text" id="wannIn" placeholder="TT.MM.JJJJ" autocomplete="off">
             <button type="button" class="date-cal-btn" id="wannCalBtn" tabindex="-1" aria-label="Kalender öffnen">
@@ -805,7 +838,7 @@
         <button type="button" class="icon-btn btn-rm"  id="rmBtn"  title="Entfernen">−</button>
       </div>
 
-      <p class="empty-hint" id="emptyHint">Noch keine Posten — Datum wählen und + drücken</p>
+      <p class="empty-hint" id="emptyHint" data-i18n="emptyHint">Noch keine Posten — Datum wählen und + drücken</p>
       <ul class="item-list" id="itemList"></ul>
 
       <div class="total-bar" id="totalBar" style="display:none">
@@ -816,9 +849,9 @@
 
     <!-- ── Betreff ── -->
     <div class="card">
-      <div class="card-label">Notiz</div>
+      <div class="card-label" data-i18n="note">Notiz</div>
       <div class="field">
-        <textarea id="noteIn" placeholder="Persönliche Notiz (optional)"></textarea>
+        <textarea id="noteIn" data-i18n-ph="notePh" placeholder="Persönliche Notiz (optional)"></textarea>
       </div>
     </div>
 
@@ -828,7 +861,7 @@
         <path d="M7 21H17a2 2 0 002-2V9l-5-5H7a2 2 0 00-2 2v13a2 2 0 002 2z"/>
         <path d="M13 3v6h6M12 11v6m-3-3l3 3 3-3"/>
       </svg>
-      PDF Generieren
+      <span data-i18n="generate">PDF Generieren</span>
     </button>
   </main>
 
@@ -863,6 +896,7 @@
           } catch { return {}; }
         })() : {};
         vorlage = { ...v, ...stored };
+        currentLang = localStorage.getItem('lang') || 'de';
         init(vorlage, { ...was, ...(stored.presets || {}) });
       });
     });
@@ -921,6 +955,7 @@
         document.getElementById('wannCalBtn').addEventListener('click', () => fp.toggle());
       }
 
+      applyLang(currentLang);
       document.body.classList.add('ready');
     }
 
@@ -964,7 +999,7 @@
       });
       const newOpt = document.createElement('option');
       newOpt.value = '__new';
-      newOpt.textContent = '+ Neuer Empfänger';
+      newOpt.textContent = t().newRecipient;
       sel.appendChild(newOpt);
     }
 
@@ -1093,9 +1128,9 @@
       const title  = wasIn.value.trim();
       const amount = parseFloat(priceIn.value);
 
-      if (!title)  { shake(wasIn);   showToast('Bitte Leistung eingeben'); return; }
-      if (!wannIn.value) { shake(wannIn); showToast('Bitte Datum wählen'); return; }
-      if (isNaN(amount) || priceIn.value === '') { shake(priceIn); showToast('Bitte Betrag eingeben'); return; }
+      if (!title)  { shake(wasIn);   showToast(t().enterService); return; }
+      if (!wannIn.value) { shake(wannIn); showToast(t().enterDate); return; }
+      if (isNaN(amount) || priceIn.value === '') { shake(priceIn); showToast(t().enterAmount); return; }
 
       // Persist unknown entries as custom for next time
       if (wasMap[title] === undefined) {
@@ -1154,11 +1189,11 @@
       const rAddr  = document.getElementById('rAddr').value.trim();
       const note   = document.getElementById('noteIn').value.trim();
 
-      if (!myName) { shake(document.getElementById('myName')); showToast('Bitte Name eingeben'); return; }
-      if (!myAddr) { shake(document.getElementById('myAddr')); showToast('Bitte Adresse eingeben'); return; }
-      if (paymentMode === 'iban' && !myIban) { shake(document.getElementById('myIban')); showToast('Bitte IBAN eingeben'); return; }
-      if (!rName)  { shake(document.getElementById('rName'));  showToast('Bitte Empfänger eingeben'); return; }
-      if (!items.length) { showToast('Noch keine Posten hinzugefügt'); return; }
+      if (!myName) { shake(document.getElementById('myName')); showToast(t().enterName); return; }
+      if (!myAddr) { shake(document.getElementById('myAddr')); showToast(t().enterAddr); return; }
+      if (paymentMode === 'iban' && !myIban) { shake(document.getElementById('myIban')); showToast(t().enterIban); return; }
+      if (!rName)  { shake(document.getElementById('rName'));  showToast(t().enterRecipient); return; }
+      if (!items.length) { showToast(t().noItems); return; }
 
       setCookie('myName', myName);
       setCookie('myAddr', myAddr);
@@ -1169,7 +1204,7 @@
       if (idx >= 0) document.getElementById('recipientSel').value = idx;
 
       makePDF({ myName, myAddr, myIban, rName, rAddr, note, isCash: paymentMode === 'bar' });
-      showToast('PDF wird heruntergeladen ✓');
+      showToast(t().pdfReady);
     }
 
     function makePDF({ myName, myAddr, myIban, rName, rAddr, note, isCash }) {
@@ -1199,11 +1234,12 @@
 
       // ── RECHNUNG heading (top left)
       y = 30;
+      const tr = t();
       sf(30, 'bold');
-      doc.text('RECHNUNG', L, y);
+      doc.text(tr.invoice, L, y);
       y += 5;
       sf(8.5, 'normal', LGT);
-      doc.text(`Nr. ${rNr}`, L, y);
+      doc.text(`${tr.invoiceNr} ${rNr}`, L, y);
 
       // ── Sender block (top right) — name + each address part on own line
       const senderParts = myAddr.split(/[,\/]/).map(s => s.trim()).filter(Boolean);
@@ -1221,7 +1257,7 @@
 
       // ── An (Empfänger) — original "An\n[name]\n[address]" structure
       sf(9, 'normal', GRY);
-      doc.text('An', L, y);
+      doc.text(tr.invoiceTo, L, y);
       y += 5.5;
       sf(10, 'bold', BLK);
       doc.text(rName, L, y);
@@ -1241,7 +1277,7 @@
 
       // ── Rechnung [nr]; am [date] — original subject line
       sf(10, 'bold', BLK);
-      doc.text(`Rechnung ${rNr};   am ${todayStr}`, L, y);
+      doc.text(tr.invoiceSubject(rNr, todayStr), L, y);
       y += 8;
 
       // ── Anschreiben from vorlage
@@ -1283,7 +1319,7 @@
       // ── Payment — original "IBAN: [iban]" or "Auszahlung in bar."
       if (isCash) {
         sf(10, 'normal', BLK);
-        doc.text('Auszahlung in bar.', L, y);
+        doc.text(tr.cashPayment, L, y);
         y += 10;
       } else {
         sf(10, 'normal', BLK);
@@ -1415,9 +1451,286 @@
       vorlage = { ...vorlage, ...upd };
       updateVorlageUI(vorlage);
       closeSettings();
-      showToast('Einstellungen gespeichert');
+      showToast(t().settingsSaved);
     });
 
+    // ── i18n ───────────────────────────────────────────────────────────────────
+    let currentLang = 'de';
+
+    const i18n = {
+      de: {
+        toWhom:'An wen', fromMe:'Von mir', items:'Posten', note:'Notiz',
+        nameOrg:'Name / Organisation', addrEmail:'Adresse / E-Mail', fullName:'Voller Name',
+        payment:'Zahlung', cash:'Bar', whatFor:'Wofür', howMuch:'Wie viel', whenWas:'Wann wars',
+        generate:'PDF Generieren', settings:'Einstellungen',
+        lblAnschreiben:'Anschreiben', lblGruss:'Grußformel', lblCurrency:'Währung',
+        lblDigitalsign:'Digitale Signatur', lblImpressum:'Impressum-Link',
+        presetsLabel:'Posten (Wofür)', save:'Speichern',
+        emptyHint:'Noch keine Posten — Datum wählen und + drücken',
+        newRecipient:'+ Neuer Empfänger',
+        enterService:'Bitte Leistung eingeben', enterDate:'Bitte Datum wählen',
+        enterAmount:'Bitte Betrag eingeben', noItems:'Noch keine Posten hinzugefügt',
+        enterName:'Bitte Name eingeben', enterAddr:'Bitte Adresse eingeben',
+        enterIban:'Bitte IBAN eingeben', enterRecipient:'Bitte Empfänger eingeben',
+        pdfReady:'PDF wird heruntergeladen ✓', settingsSaved:'Einstellungen gespeichert',
+        invoice:'RECHNUNG', invoiceNr:'Nr.', invoiceTo:'An',
+        invoiceSubject:(nr,d)=>`Rechnung ${nr};   am ${d}`, cashPayment:'Auszahlung in bar.',
+        rNamePh:'z.B. Musterverein e.V.', addrPh:'Straße Nr, PLZ Ort  oder  name@example.de',
+        myNamePh:'Dein Name', ibanPh:'DE00 0000 0000 0000 0000 00',
+        wasSelPh:'Wählen oder eingeben…', datePh:'TT.MM.JJJJ',
+        notePh:'Persönliche Notiz (optional)',
+        sAnschreibenPh:'Sehr geehrte Damen und Herren…', sGrussPh:'Mit freundlichen Grüßen',
+        sDigitalsignPh:'--- Digital erstellt und ohne Unterschrift gültig ---',
+        presetNamePh:'Bezeichnung',
+      },
+      en: {
+        toWhom:"Who's it for", fromMe:'From me', items:'Items', note:'Note',
+        nameOrg:'Name / Organisation', addrEmail:'Address / Email', fullName:'Full name',
+        payment:'Payment', cash:'Cash', whatFor:'What for', howMuch:'How much', whenWas:'When was it',
+        generate:'Generate PDF', settings:'Settings',
+        lblAnschreiben:'Opening text', lblGruss:'Closing', lblCurrency:'Currency',
+        lblDigitalsign:'Digital signature', lblImpressum:'Imprint link',
+        presetsLabel:'Items (What for)', save:'Save',
+        emptyHint:'No items yet — pick a date and hit +',
+        newRecipient:'+ New recipient',
+        enterService:'Please enter a service', enterDate:'Please pick a date',
+        enterAmount:'Please enter an amount', noItems:'No items added yet',
+        enterName:'Please enter your name', enterAddr:'Please enter your address',
+        enterIban:'Please enter your IBAN', enterRecipient:'Please enter a recipient',
+        pdfReady:'PDF downloading ✓', settingsSaved:'Settings saved',
+        invoice:'INVOICE', invoiceNr:'No.', invoiceTo:'To',
+        invoiceSubject:(nr,d)=>`Invoice ${nr};   date ${d}`, cashPayment:'Payment in cash.',
+        rNamePh:'e.g. Example Corp.', addrPh:'Street, ZIP City  or  name@example.com',
+        myNamePh:'Your name', ibanPh:'GB00 0000 0000 0000 0000 00',
+        wasSelPh:'Pick or type…', datePh:'DD.MM.YYYY',
+        notePh:'Personal note (optional)',
+        sAnschreibenPh:'Dear Sir or Madam,', sGrussPh:'Kind regards',
+        sDigitalsignPh:'--- Digitally created, valid without signature ---',
+        presetNamePh:'Name',
+      },
+      fr: {
+        toWhom:'Pour qui', fromMe:'De moi', items:'Prestations', note:'Note',
+        nameOrg:'Nom / Organisation', addrEmail:'Adresse / E-mail', fullName:'Nom complet',
+        payment:'Paiement', cash:'Espèces', whatFor:'Pour quoi', howMuch:'Combien', whenWas:"C'était quand",
+        generate:'Générer le PDF', settings:'Paramètres',
+        lblAnschreiben:"Texte d'intro", lblGruss:'Formule de politesse', lblCurrency:'Devise',
+        lblDigitalsign:'Signature numérique', lblImpressum:'Mentions légales',
+        presetsLabel:'Prestations (Pour quoi)', save:'Enregistrer',
+        emptyHint:'Aucune prestation — choisir une date et appuyer sur +',
+        newRecipient:'+ Nouveau destinataire',
+        enterService:'Veuillez saisir une prestation', enterDate:'Veuillez choisir une date',
+        enterAmount:'Veuillez saisir un montant', noItems:'Aucune prestation ajoutée',
+        enterName:'Veuillez saisir votre nom', enterAddr:'Veuillez saisir votre adresse',
+        enterIban:'Veuillez saisir votre IBAN', enterRecipient:'Veuillez saisir un destinataire',
+        pdfReady:'PDF en téléchargement ✓', settingsSaved:'Paramètres enregistrés',
+        invoice:'FACTURE', invoiceNr:'N°', invoiceTo:'À',
+        invoiceSubject:(nr,d)=>`Facture ${nr};   le ${d}`, cashPayment:'Paiement en espèces.',
+        rNamePh:'ex. Association Exemple', addrPh:'Rue N°, CP Ville  ou  nom@exemple.fr',
+        myNamePh:'Ton nom', ibanPh:'FR00 0000 0000 0000 0000 000 00',
+        wasSelPh:'Choisir ou saisir…', datePh:'JJ.MM.AAAA',
+        notePh:'Note perso (optionnel)',
+        sAnschreibenPh:'Madame, Monsieur,', sGrussPh:'Cordialement',
+        sDigitalsignPh:'--- Créé numériquement, valide sans signature ---',
+        presetNamePh:'Désignation',
+      },
+      es: {
+        toWhom:'¿Para quién?', fromMe:'De mi parte', items:'Conceptos', note:'Nota',
+        nameOrg:'Nombre / Organización', addrEmail:'Dirección / E-mail', fullName:'Nombre completo',
+        payment:'Pago', cash:'Efectivo', whatFor:'¿Por qué?', howMuch:'¿Cuánto?', whenWas:'¿Cuándo fue?',
+        generate:'Generar PDF', settings:'Ajustes',
+        lblAnschreiben:'Texto introductorio', lblGruss:'Fórmula de cierre', lblCurrency:'Divisa',
+        lblDigitalsign:'Firma digital', lblImpressum:'Aviso legal',
+        presetsLabel:'Conceptos (¿Por qué?)', save:'Guardar',
+        emptyHint:'Sin conceptos — elige fecha y pulsa +',
+        newRecipient:'+ Nuevo destinatario',
+        enterService:'Introduce un concepto', enterDate:'Elige una fecha',
+        enterAmount:'Introduce un importe', noItems:'Sin conceptos aún',
+        enterName:'Introduce tu nombre', enterAddr:'Introduce tu dirección',
+        enterIban:'Introduce tu IBAN', enterRecipient:'Introduce un destinatario',
+        pdfReady:'PDF descargando ✓', settingsSaved:'Ajustes guardados',
+        invoice:'FACTURA', invoiceNr:'N.°', invoiceTo:'A',
+        invoiceSubject:(nr,d)=>`Factura ${nr};   fecha ${d}`, cashPayment:'Pago en efectivo.',
+        rNamePh:'p. ej. Empresa Ejemplo S.L.', addrPh:'Calle N.°, CP Ciudad  o  nombre@ejemplo.es',
+        myNamePh:'Tu nombre', ibanPh:'ES00 0000 0000 0000 0000 0000',
+        wasSelPh:'Elige o escribe…', datePh:'DD.MM.AAAA',
+        notePh:'Nota personal (opcional)',
+        sAnschreibenPh:'Estimado/a señor/a,', sGrussPh:'Atentamente',
+        sDigitalsignPh:'--- Creado digitalmente, válido sin firma ---',
+        presetNamePh:'Denominación',
+      },
+      it: {
+        toWhom:'A chi', fromMe:'Da me', items:'Voci', note:'Nota',
+        nameOrg:'Nome / Organizzazione', addrEmail:'Indirizzo / E-mail', fullName:'Nome completo',
+        payment:'Pagamento', cash:'Contanti', whatFor:'Per cosa', howMuch:'Quanto', whenWas:"Quand'è stato",
+        generate:'Genera PDF', settings:'Impostazioni',
+        lblAnschreiben:'Testo introduttivo', lblGruss:'Formula di chiusura', lblCurrency:'Valuta',
+        lblDigitalsign:'Firma digitale', lblImpressum:'Note legali',
+        presetsLabel:'Voci (Per cosa)', save:'Salva',
+        emptyHint:'Nessuna voce — scegli una data e premi +',
+        newRecipient:'+ Nuovo destinatario',
+        enterService:'Inserisci una voce', enterDate:'Scegli una data',
+        enterAmount:'Inserisci un importo', noItems:'Nessuna voce aggiunta',
+        enterName:'Inserisci il tuo nome', enterAddr:'Inserisci il tuo indirizzo',
+        enterIban:'Inserisci il tuo IBAN', enterRecipient:'Inserisci un destinatario',
+        pdfReady:'PDF in download ✓', settingsSaved:'Impostazioni salvate',
+        invoice:'FATTURA', invoiceNr:'N.', invoiceTo:'A',
+        invoiceSubject:(nr,d)=>`Fattura ${nr};   del ${d}`, cashPayment:'Pagamento in contanti.',
+        rNamePh:'es. Associazione Esempio', addrPh:'Via N., CAP Città  o  nome@esempio.it',
+        myNamePh:'Il tuo nome', ibanPh:'IT00 0000 0000 0000 0000 000 0',
+        wasSelPh:'Scegli o scrivi…', datePh:'GG.MM.AAAA',
+        notePh:'Nota personale (opzionale)',
+        sAnschreibenPh:'Gentile Signore/Signora,', sGrussPh:'Cordiali saluti',
+        sDigitalsignPh:'--- Creato digitalmente, valido senza firma ---',
+        presetNamePh:'Denominazione',
+      },
+      pt: {
+        toWhom:'Para quem', fromMe:'De mim', items:'Itens', note:'Nota',
+        nameOrg:'Nome / Organização', addrEmail:'Morada / E-mail', fullName:'Nome completo',
+        payment:'Pagamento', cash:'Numerário', whatFor:'Para quê', howMuch:'Quanto', whenWas:'Quando foi',
+        generate:'Gerar PDF', settings:'Definições',
+        lblAnschreiben:'Texto de abertura', lblGruss:'Fórmula de fecho', lblCurrency:'Moeda',
+        lblDigitalsign:'Assinatura digital', lblImpressum:'Aviso legal',
+        presetsLabel:'Itens (Para quê)', save:'Guardar',
+        emptyHint:'Sem itens — escolhe uma data e prime +',
+        newRecipient:'+ Novo destinatário',
+        enterService:'Insere um item', enterDate:'Escolhe uma data',
+        enterAmount:'Insere um valor', noItems:'Nenhum item adicionado',
+        enterName:'Insere o teu nome', enterAddr:'Insere a tua morada',
+        enterIban:'Insere o teu IBAN', enterRecipient:'Insere um destinatário',
+        pdfReady:'PDF a descarregar ✓', settingsSaved:'Definições guardadas',
+        invoice:'FATURA', invoiceNr:'N.º', invoiceTo:'Para',
+        invoiceSubject:(nr,d)=>`Fatura ${nr};   de ${d}`, cashPayment:'Pagamento em numerário.',
+        rNamePh:'ex. Associação Exemplo', addrPh:'Rua N.º, CP Cidade  ou  nome@exemplo.pt',
+        myNamePh:'O teu nome', ibanPh:'PT00 0000 0000 0000 0000 000 0',
+        wasSelPh:'Escolher ou escrever…', datePh:'DD.MM.AAAA',
+        notePh:'Nota pessoal (opcional)',
+        sAnschreibenPh:'Caro/a Senhor/a,', sGrussPh:'Com os melhores cumprimentos',
+        sDigitalsignPh:'--- Criado digitalmente, válido sem assinatura ---',
+        presetNamePh:'Designação',
+      },
+      nl: {
+        toWhom:'Aan wie', fromMe:'Van mij', items:'Posten', note:'Notitie',
+        nameOrg:'Naam / Organisatie', addrEmail:'Adres / E-mail', fullName:'Volledige naam',
+        payment:'Betaling', cash:'Contant', whatFor:'Waarvoor', howMuch:'Hoeveel', whenWas:'Wanneer was het',
+        generate:'PDF genereren', settings:'Instellingen',
+        lblAnschreiben:'Openingstekst', lblGruss:'Afsluiting', lblCurrency:'Valuta',
+        lblDigitalsign:'Digitale handtekening', lblImpressum:'Impressum-link',
+        presetsLabel:'Posten (Waarvoor)', save:'Opslaan',
+        emptyHint:'Nog geen posten — kies een datum en druk op +',
+        newRecipient:'+ Nieuwe ontvanger',
+        enterService:'Voer een post in', enterDate:'Kies een datum',
+        enterAmount:'Voer een bedrag in', noItems:'Nog geen posten toegevoegd',
+        enterName:'Voer uw naam in', enterAddr:'Voer uw adres in',
+        enterIban:'Voer uw IBAN in', enterRecipient:'Voer een ontvanger in',
+        pdfReady:'PDF wordt gedownload ✓', settingsSaved:'Instellingen opgeslagen',
+        invoice:'FACTUUR', invoiceNr:'Nr.', invoiceTo:'Aan',
+        invoiceSubject:(nr,d)=>`Factuur ${nr};   d.d. ${d}`, cashPayment:'Betaling in contanten.',
+        rNamePh:'bijv. Voorbeeld Vereniging', addrPh:'Straat Nr, Postcode Plaats  of  naam@voorbeeld.nl',
+        myNamePh:'Jouw naam', ibanPh:'NL00 XXXX 0000 0000 00',
+        wasSelPh:'Kiezen of intypen…', datePh:'DD.MM.JJJJ',
+        notePh:'Persoonlijke notitie (optioneel)',
+        sAnschreibenPh:'Geachte heer/mevrouw,', sGrussPh:'Met vriendelijke groet',
+        sDigitalsignPh:'--- Digitaal aangemaakt, geldig zonder handtekening ---',
+        presetNamePh:'Omschrijving',
+      },
+      pl: {
+        toWhom:'Dla kogo', fromMe:'Ode mnie', items:'Pozycje', note:'Uwagi',
+        nameOrg:'Imię i nazwisko / Organizacja', addrEmail:'Adres / E-mail', fullName:'Pełne imię',
+        payment:'Płatność', cash:'Gotówka', whatFor:'Za co', howMuch:'Ile', whenWas:'Kiedy to było',
+        generate:'Generuj PDF', settings:'Ustawienia',
+        lblAnschreiben:'Tekst wstępny', lblGruss:'Formuła zamknięcia', lblCurrency:'Waluta',
+        lblDigitalsign:'Podpis cyfrowy', lblImpressum:'Stopka prawna',
+        presetsLabel:'Pozycje (Za co)', save:'Zapisz',
+        emptyHint:'Brak pozycji — wybierz datę i naciśnij +',
+        newRecipient:'+ Nowy odbiorca',
+        enterService:'Wpisz pozycję', enterDate:'Wybierz datę',
+        enterAmount:'Wpisz kwotę', noItems:'Nie dodano żadnych pozycji',
+        enterName:'Wpisz swoje imię', enterAddr:'Wpisz swój adres',
+        enterIban:'Wpisz swój IBAN', enterRecipient:'Wpisz odbiorcę',
+        pdfReady:'PDF jest pobierany ✓', settingsSaved:'Ustawienia zapisane',
+        invoice:'FAKTURA', invoiceNr:'Nr', invoiceTo:'Do',
+        invoiceSubject:(nr,d)=>`Faktura ${nr};   z dnia ${d}`, cashPayment:'Płatność gotówką.',
+        rNamePh:'np. Stowarzyszenie Przykład', addrPh:'Ulica Nr, Kod Miasto  lub  nazwa@przykład.pl',
+        myNamePh:'Twoje imię', ibanPh:'PL00 0000 0000 0000 0000 0000 0000',
+        wasSelPh:'Wybierz lub wpisz…', datePh:'DD.MM.RRRR',
+        notePh:'Osobista uwaga (opcjonalnie)',
+        sAnschreibenPh:'Szanowna Pani/Szanowny Panie,', sGrussPh:'Z poważaniem',
+        sDigitalsignPh:'--- Stworzone cyfrowo, ważne bez podpisu ---',
+        presetNamePh:'Nazwa',
+      },
+      sv: {
+        toWhom:'Vem är det till', fromMe:'Från mig', items:'Poster', note:'Anteckning',
+        nameOrg:'Namn / Organisation', addrEmail:'Adress / E-post', fullName:'Hela namnet',
+        payment:'Betalning', cash:'Kontant', whatFor:'Vad gäller det', howMuch:'Hur mycket', whenWas:'När var det',
+        generate:'Generera PDF', settings:'Inställningar',
+        lblAnschreiben:'Inledningstext', lblGruss:'Avslutningsformel', lblCurrency:'Valuta',
+        lblDigitalsign:'Digital signatur', lblImpressum:'Impressum-länk',
+        presetsLabel:'Poster (Vad gäller det)', save:'Spara',
+        emptyHint:'Inga poster — välj datum och tryck +',
+        newRecipient:'+ Ny mottagare',
+        enterService:'Ange en post', enterDate:'Välj ett datum',
+        enterAmount:'Ange ett belopp', noItems:'Inga poster tillagda',
+        enterName:'Ange ditt namn', enterAddr:'Ange din adress',
+        enterIban:'Ange ditt IBAN', enterRecipient:'Ange en mottagare',
+        pdfReady:'PDF laddas ner ✓', settingsSaved:'Inställningar sparade',
+        invoice:'FAKTURA', invoiceNr:'Nr.', invoiceTo:'Till',
+        invoiceSubject:(nr,d)=>`Faktura ${nr};   datum ${d}`, cashPayment:'Betalning kontant.',
+        rNamePh:'t.ex. Exempelförening', addrPh:'Gata Nr, Postnr Stad  eller  namn@exempel.se',
+        myNamePh:'Ditt namn', ibanPh:'SE00 0000 0000 0000 0000 0000',
+        wasSelPh:'Välj eller skriv…', datePh:'DD.MM.ÅÅÅÅ',
+        notePh:'Personlig anteckning (valfritt)',
+        sAnschreibenPh:'Bäste herr/fru,', sGrussPh:'Med vänlig hälsning',
+        sDigitalsignPh:'--- Digitalt skapad, giltig utan underskrift ---',
+        presetNamePh:'Beteckning',
+      },
+      ja: {
+        toWhom:'宛先', fromMe:'差出人', items:'項目', note:'メモ',
+        nameOrg:'氏名 / 組織名', addrEmail:'住所 / メール', fullName:'氏名',
+        payment:'支払方法', cash:'現金', whatFor:'内容', howMuch:'金額', whenWas:'日付',
+        generate:'PDF 生成', settings:'設定',
+        lblAnschreiben:'本文', lblGruss:'結び', lblCurrency:'通貨',
+        lblDigitalsign:'デジタル署名', lblImpressum:'法的情報リンク',
+        presetsLabel:'項目（内容）', save:'保存',
+        emptyHint:'項目なし — 日付を選んで + を押してください',
+        newRecipient:'+ 新しい宛先',
+        enterService:'内容を入力してください', enterDate:'日付を選択してください',
+        enterAmount:'金額を入力してください', noItems:'項目が追加されていません',
+        enterName:'氏名を入力してください', enterAddr:'住所を入力してください',
+        enterIban:'口座情報を入力してください', enterRecipient:'宛先を入力してください',
+        pdfReady:'PDF をダウンロード中 ✓', settingsSaved:'設定を保存しました',
+        invoice:'請求書', invoiceNr:'番号', invoiceTo:'宛先',
+        invoiceSubject:(nr,d)=>`請求書 ${nr}　${d}`, cashPayment:'現金払い。',
+        rNamePh:'例：サンプル株式会社', addrPh:'住所  または  name@example.com',
+        myNamePh:'お名前', ibanPh:'口座番号',
+        wasSelPh:'選択または入力…', datePh:'DD.MM.YYYY',
+        notePh:'メモ（任意）',
+        sAnschreibenPh:'拝啓', sGrussPh:'敬具',
+        sDigitalsignPh:'--- デジタル作成済み、署名なしで有効 ---',
+        presetNamePh:'名称',
+      },
+    };
+
+    function t() { return i18n[currentLang] || i18n.de; }
+
+    function applyLang(code) {
+      currentLang = code;
+      localStorage.setItem('lang', code);
+      document.getElementById('langSel').value = code;
+      const tr = t();
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const v = tr[el.dataset.i18n];
+        if (v !== undefined) el.textContent = v;
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const v = tr[el.dataset.i18nPh];
+        if (v !== undefined) el.placeholder = v;
+      });
+      buildRecipientDropdown();
+    }
+
+    document.getElementById('langSel').addEventListener('change', e => applyLang(e.target.value));
+
+    // ── Utilities ──────────────────────────────────────────────────────────────
     const setCookie = (k, v) =>
       (document.cookie = `${k}=${v}; path=/; max-age=31536000; samesite=strict`);
 
