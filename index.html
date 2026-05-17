@@ -1776,9 +1776,10 @@
       const splitLines = (text, w) => doc.splitTextToSize(text, w);
       const tr = t();
 
-      // ── Logo (top right) — draw first so heading/sender can adapt
-      const LOGO_TOP = 12;
-      let logoBottom = LOGO_TOP;
+      // ── Logo (top right) — vertically centered on the document title
+      const HEADING_Y = 30; // baseline of the large "RECHNUNG" text
+      const headingCtr = HEADING_Y - 4; // approx visual centre of 30pt caps above baseline
+      let logoBottom = HEADING_Y;
       if (_logoCached) {
         try {
           const props = doc.getImageProperties(_logoCached);
@@ -1786,23 +1787,24 @@
           const scale = Math.min(maxW / props.width, maxH / props.height);
           const iW = props.width * scale;
           const iH = props.height * scale;
+          const logoTop = Math.max(10, headingCtr - iH / 2);
           const fmtM = _logoCached.match(/^data:image\/([a-z+]+);/);
           const imgFmt = (fmtM ? fmtM[1] : 'png').toUpperCase().replace('JPG', 'JPEG');
-          doc.addImage(_logoCached, imgFmt, R - iW, LOGO_TOP, iW, iH);
-          logoBottom = LOGO_TOP + iH;
+          doc.addImage(_logoCached, imgFmt, R - iW, logoTop, iW, iH);
+          logoBottom = logoTop + iH;
         } catch {}
       }
 
-      // ── RECHNUNG heading — below logo if logo is tall
-      y = Math.max(30, logoBottom + 8);
+      // ── RECHNUNG heading — always at fixed y, unaffected by logo
+      y = HEADING_Y;
       sf(30, 'bold');
       doc.text(vorlage.invoiceTitle || tr.invoice, L, y);
       y += 6;
       sf(11, 'bold', GRY);
       doc.text(`${tr.invoiceNr} ${rNr}`, L, y);
 
-      // ── Sender block (top right) — starts below logo with a small gap
-      let sy = Math.max(20, logoBottom + 5);
+      // ── Sender block (top right) — starts after heading row or logo, whichever is lower
+      let sy = Math.max(y + 8, logoBottom + 4);
       sf(10, 'bold', BLK);
       doc.text(myName, R, sy, { align: 'right' });
       sy += 5.5;
