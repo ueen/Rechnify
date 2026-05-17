@@ -1108,18 +1108,6 @@
     }
 
     // ── Boot ───────────────────────────────────────────────────────────────────
-    const VORLAGE_DEFAULTS = {
-      invoiceTitle: 'Rechnung',
-      logo: '',
-      letter: 'Guten Tag, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen [Überweisung an die unten angegebende IBAN | Auszahlung in bar].',
-      gruss: 'Mit freundlichen Grüßen',
-      currency: '€',
-      digitalsign: '--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---',
-      impressum: '',
-      pw_protect: false,
-      enable_email: false,
-    };
-
     window.addEventListener('DOMContentLoaded', () => {
       const _embedded = (() => { try { return JSON.parse(document.getElementById('vorlage').textContent); } catch { return {}; } })();
       fetch('vorlage.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => _embedded)
@@ -1134,7 +1122,7 @@
         })() : {};
         vorlageItems      = v.items      || {};
         vorlageRecipients = v.recipients || [];
-        vorlage = { ...VORLAGE_DEFAULTS, ...v, ...stored };
+        vorlage = { ...v, ...stored };
         const browserLang = (navigator.language || 'de').toLowerCase().split('-')[0];
         currentLang = localStorage.getItem('lang') || (i18n[browserLang] ? browserLang : 'de');
         await cacheLogoIfNeeded(vorlage.logo);
