@@ -68,4 +68,6 @@ Set `"pw_protect": true` in `vorlage.json` and `$password` in `send.php`. Pass i
 
 ---
 
+Found a bug or have feedback? [Open an issue](https://github.com/ueen/Rechnify/issues) — happy to hear it.
+
 [Unlicense](LICENSE)
