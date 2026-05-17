@@ -710,6 +710,7 @@
     }
     #settingsClear:hover { color: var(--danger); border-color: var(--danger); }
     #vorlageLoadBtn:hover { color: var(--primary); border-color: var(--primary); }
+    #vorlageExportBtn:hover { color: var(--primary); border-color: var(--primary); }
 
     @media (min-width: 520px) {
       .modal-card {
@@ -856,12 +857,12 @@
           <label for="sDigitalsign" data-i18n="lblDigitalsign">Fußzeile</label>
           <textarea id="sDigitalsign" rows="2" data-i18n-ph="sDigitalsignPh" placeholder="--- Digital erstellt und ohne Unterschrift gültig ---" style="min-height:unset"></textarea>
         </div>
-        <button type="button" class="modal-clear" id="vorlageExportBtn" data-i18n="exportConfig" style="width:100%;display:block;margin-top:8px;margin-bottom:8px">vorlage.json exportieren</button>
       </div>
       <div class="modal-footer">
         <div class="modal-footer-row">
           <button type="button" class="modal-clear" id="settingsClear" data-i18n="clearData">Lokale Daten löschen</button>
           <button type="button" class="modal-clear" id="vorlageLoadBtn" data-i18n="loadConfig">vorlage.json laden</button>
+          <button type="button" class="modal-clear" id="vorlageExportBtn" data-i18n="exportConfig">vorlage.json exportieren</button>
           <input type="file" id="vorlageFile" accept=".json" style="display:none">
         </div>
         <button class="modal-save" id="settingsSave" data-i18n="save">Speichern</button>
@@ -1821,7 +1822,7 @@
         sy += 5;
       }
 
-      y = Math.max(y + 8, sy) + 10;
+      y = Math.max(y + 8, sy) + 14;
 
       // ── Recipient block
       sf(9, 'normal', GRY);
