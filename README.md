@@ -68,12 +68,4 @@ Set `"pw_protect": true` in `vorlage.json` and `$password` in `send.php`. Pass i
 
 ---
 
-## Development
-
-```bash
-php -S localhost:8080 -t /path/to/rechnify
-```
-
----
-
 [LICENSE](LICENSE)
