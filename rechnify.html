@@ -845,6 +845,10 @@
       </div>
       <div class="modal-body">
         <div class="field">
+          <label for="sDocTitle" data-i18n="lblDocTitle">Dokumententitel</label>
+          <input type="text" id="sDocTitle" data-i18n-ph="lblDocTitlePh" placeholder="RECHNUNG">
+        </div>
+        <div class="field">
           <label for="sAnschreiben" data-i18n="lblAnschreiben">Anschreiben</label>
           <textarea id="sAnschreiben" rows="4" data-i18n-ph="sAnschreibenPh" placeholder="Sehr geehrte Damen und Herren…"></textarea>
         </div>
@@ -1757,7 +1761,7 @@
       // ── RECHNUNG heading
       y = 30;
       sf(30, 'bold');
-      doc.text(tr.invoice, L, y);
+      doc.text(vorlage.docTitle || tr.invoice, L, y);
       y += 6;
       sf(11, 'bold', GRY);
       doc.text(`${tr.invoiceNr} ${rNr}`, L, y);
@@ -1941,6 +1945,7 @@
 
     // ── Settings modal ─────────────────────────────────────────────────────────
     function openSettings() {
+      document.getElementById('sDocTitle').value    = vorlage.docTitle    || '';
       document.getElementById('sAnschreiben').value = vorlage.letter || '';
       document.getElementById('sGruss').value       = vorlage.gruss       || '';
       document.getElementById('sCurrency').value    = vorlage.currency    || currency;
@@ -2024,6 +2029,7 @@
 
     document.getElementById('settingsSave').addEventListener('click', () => {
       const upd = {
+        docTitle:    document.getElementById('sDocTitle').value.trim(),
         letter:      document.getElementById('sAnschreiben').value.trim(),
         gruss:       document.getElementById('sGruss').value.trim(),
         currency:    document.getElementById('sCurrency').value.trim() || '€',
@@ -2046,6 +2052,7 @@
         generate:'PDF erstellen', preview:'Vorschau', settings:'Einstellungen',
         sendEmail:'Per E-Mail senden', sendOk:'Gesendet ✓', sendFail:'Versand fehlgeschlagen',
         clearData:'Lokale Daten löschen',
+        lblDocTitle:'dokumententitel', lblDocTitlePh:'RECHNUNG',
         lblAnschreiben:'anschreiben', lblGruss:'grußformel', lblCurrency:'währung',
         lblDigitalsign:'digitale signatur',
         presetsLabel:'was (wofür)', save:'Speichern',
@@ -2070,6 +2077,7 @@
         generate:'generate PDF', preview:'Preview', settings:'Settings',
         sendEmail:'Send by email', sendOk:'Sent ✓', sendFail:'Sending failed',
         clearData:'Clear local data',
+        lblDocTitle:'document title', lblDocTitlePh:'INVOICE',
         lblAnschreiben:'opening text', lblGruss:'closing', lblCurrency:'currency',
         lblDigitalsign:'digital signature',
         presetsLabel:'what (for)', save:'Save',
@@ -2094,6 +2102,7 @@
         generate:'créer PDF', preview:'Aperçu', settings:'Paramètres',
         sendEmail:'Envoyer par e-mail', sendOk:'Envoyé ✓', sendFail:'Envoi échoué',
         clearData:'Effacer les données locales',
+        lblDocTitle:'titre du document', lblDocTitlePh:'FACTURE',
         lblAnschreiben:"texte d'intro", lblGruss:'formule de politesse', lblCurrency:'devise',
         lblDigitalsign:'signature numérique',
         presetsLabel:'quoi (pour)', save:'Enregistrer',
@@ -2118,6 +2127,7 @@
         generate:'crear PDF', preview:'Vista previa', settings:'Ajustes',
         sendEmail:'Enviar por e-mail', sendOk:'Enviado ✓', sendFail:'Error al enviar',
         clearData:'Borrar datos locales',
+        lblDocTitle:'título del documento', lblDocTitlePh:'FACTURA',
         lblAnschreiben:'texto introductorio', lblGruss:'fórmula de cierre', lblCurrency:'divisa',
         lblDigitalsign:'firma digital',
         presetsLabel:'qué (para)', save:'Guardar',
@@ -2142,6 +2152,7 @@
         generate:'crea PDF', preview:'Anteprima', settings:'Impostazioni',
         sendEmail:'Invia per e-mail', sendOk:'Inviato ✓', sendFail:'Invio fallito',
         clearData:'Cancella dati locali',
+        lblDocTitle:'titolo documento', lblDocTitlePh:'FATTURA',
         lblAnschreiben:'testo introduttivo', lblGruss:'formula di chiusura', lblCurrency:'valuta',
         lblDigitalsign:'firma digitale',
         presetsLabel:'cosa (per)', save:'Salva',
@@ -2166,6 +2177,7 @@
         generate:'criar PDF', preview:'Pré-visualizar', settings:'Definições',
         sendEmail:'Enviar por e-mail', sendOk:'Enviado ✓', sendFail:'Falha no envio',
         clearData:'Apagar dados locais',
+        lblDocTitle:'título do documento', lblDocTitlePh:'FATURA',
         lblAnschreiben:'texto de abertura', lblGruss:'fórmula de fecho', lblCurrency:'moeda',
         lblDigitalsign:'assinatura digital',
         presetsLabel:'o quê (para)', save:'Guardar',
@@ -2190,6 +2202,7 @@
         generate:'PDF aanmaken', preview:'Voorbeeld', settings:'Instellingen',
         sendEmail:'Versturen', sendOk:'Verzonden ✓', sendFail:'Verzenden mislukt',
         clearData:'Lokale gegevens wissen',
+        lblDocTitle:'documenttitel', lblDocTitlePh:'FACTUUR',
         lblAnschreiben:'openingstekst', lblGruss:'afsluiting', lblCurrency:'valuta',
         lblDigitalsign:'digitale handtekening',
         presetsLabel:'wat (voor)', save:'Opslaan',
@@ -2214,6 +2227,7 @@
         generate:'utwórz PDF', preview:'Podgląd', settings:'Ustawienia',
         sendEmail:'Wyślij e-mail', sendOk:'Wysłano ✓', sendFail:'Wysyłanie nieudane',
         clearData:'Wyczyść dane lokalne',
+        lblDocTitle:'tytuł dokumentu', lblDocTitlePh:'FAKTURA',
         lblAnschreiben:'tekst wstępny', lblGruss:'formuła zamknięcia', lblCurrency:'waluta',
         lblDigitalsign:'podpis cyfrowy',
         presetsLabel:'co (za)', save:'Zapisz',
@@ -2238,6 +2252,7 @@
         generate:'skapa PDF', preview:'Förhandsgranska', settings:'Inställningar',
         sendEmail:'Skicka e-post', sendOk:'Skickat ✓', sendFail:'Sändning misslyckades',
         clearData:'Rensa lokal data',
+        lblDocTitle:'dokumenttitel', lblDocTitlePh:'FAKTURA',
         lblAnschreiben:'inledningstext', lblGruss:'avslutningsformel', lblCurrency:'valuta',
         lblDigitalsign:'digital signatur',
         presetsLabel:'vad (till)', save:'Spara',
@@ -2262,6 +2277,7 @@
         generate:'PDF作成', preview:'プレビュー', settings:'設定',
         sendEmail:'メールで送信', sendOk:'送信済み ✓', sendFail:'送信失敗',
         clearData:'ローカルデータを削除',
+        lblDocTitle:'書類タイトル', lblDocTitlePh:'請求書',
         lblAnschreiben:'本文', lblGruss:'結び', lblCurrency:'通貨',
         lblDigitalsign:'デジタル署名',
         presetsLabel:'何（用途）', save:'保存',
