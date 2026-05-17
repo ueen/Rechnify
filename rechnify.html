@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js"></script>
   <script id="vorlage" type="application/json">
 {
-  "docTitle": "",
+  "invoiceTitle": "Rechnung",
   "logo": "",
   "letter": "Guten Tag, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen [Überweisung an die unten angegebende IBAN | Auszahlung in bar].",
   "gruss": "Mit freundlichen Grüßen",
@@ -1109,7 +1109,7 @@
 
     // ── Boot ───────────────────────────────────────────────────────────────────
     const VORLAGE_DEFAULTS = {
-      docTitle: '',
+      invoiceTitle: 'Rechnung',
       logo: '',
       letter: 'Guten Tag, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen [Überweisung an die unten angegebende IBAN | Auszahlung in bar].',
       gruss: 'Mit freundlichen Grüßen',
@@ -1791,7 +1791,7 @@
       // ── RECHNUNG heading
       y = 30;
       sf(30, 'bold');
-      doc.text(vorlage.docTitle || tr.invoice, L, y);
+      doc.text(vorlage.invoiceTitle || tr.invoice, L, y);
       y += 6;
       sf(11, 'bold', GRY);
       doc.text(`${tr.invoiceNr} ${rNr}`, L, y);
@@ -1993,7 +1993,7 @@
     // ── Settings modal ─────────────────────────────────────────────────────────
     function openSettings() {
       _pendingLogoFile = null;
-      document.getElementById('sDocTitle').value    = vorlage.docTitle    || '';
+      document.getElementById('sDocTitle').value    = vorlage.invoiceTitle || '';
       const logoEl = document.getElementById('sLogo');
       logoEl.value = (vorlage.logo && !vorlage.logo.startsWith('data:')) ? vorlage.logo : '';
       logoEl.placeholder = vorlage.logo && vorlage.logo.startsWith('data:') ? '(local file)' : (t().lblLogoPh || 'URL or pick file');
@@ -2110,7 +2110,7 @@
         _logoCached = null;
       }
       const upd = {
-        docTitle:    document.getElementById('sDocTitle').value.trim(),
+        invoiceTitle: document.getElementById('sDocTitle').value.trim(),
         logo,
         letter:      document.getElementById('sAnschreiben').value.trim(),
         gruss:       document.getElementById('sGruss').value.trim(),

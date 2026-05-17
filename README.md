@@ -29,7 +29,7 @@ Drop the files from the [latest release](https://github.com/ueen/Rechnify/releas
 
 | Field | Description |
 |---|---|
-| `docTitle` | Heading text in the PDF (e.g. `"RECHNUNG"`); defaults to the UI language word for invoice |
+| `invoiceTitle` | Heading text in the PDF (default `"Rechnung"`); set to any string to override |
 | `logo` | Path or URL to a logo image rendered top-right in the PDF (e.g. `"/logo.png"`); can also be set to a local file via Settings |
 | `letter` | Opening paragraph in the PDF — supports `[iban text \| cash text]` conditionals |
 | `gruss` | Closing greeting |
