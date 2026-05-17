@@ -9,6 +9,24 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js"></script>
+  <script id="vorlage" type="application/json">
+{
+  "letter": "Guten Tag, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen [Überweisung an die unten angegebende IBAN | Auszahlung in bar].",
+  "gruss": "Mit freundlichen Grüßen",
+  "currency": "€",
+  "digitalsign": "--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---",
+  "impressum": "",
+  "pw_protect": false,
+  "enable_email": false,
+  "items": {
+    "Interview": 60,
+    "Lesson": 30
+  },
+  "recipients": [
+    { "name": "Beispiel e.V.", "address": "Beispielstraße 1, 12345 Beispielstadt", "email": "beispiel@example.com" }
+  ]
+}
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -175,13 +193,6 @@
     input::placeholder, textarea::placeholder {
       color: var(--text-muted);
     }
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.6);
-      cursor: pointer;
-    }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-    input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
     input[type="email"]::-webkit-contacts-auto-fill-button,
     input[type="email"]::-webkit-credentials-auto-fill-button { visibility: hidden; }
     select {
@@ -211,11 +222,9 @@
 
     /* ── Recipient section ── */
     .recipient-fields {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
+      margin-top: 0;
+      padding-top: 0;
     }
-    .recipient-fields.hidden { display: none; }
 
     /* ── Item picker ── */
     .picker-top {
@@ -300,6 +309,8 @@
     .addr-or-email .field + .field { margin-top: 12px !important; }
     .or-divider + .field  { margin-top: 12px !important; }
     .addr-or-email + .field { margin-top: 12px; }
+    .field-row { display: flex; gap: 10px; }
+    .field-row .field { flex: 1; margin-top: 0 !important; }
     /* top is set precisely by positionOrDividers() in JS */
     .or-divider {
       position: absolute;
@@ -571,7 +582,6 @@
       -webkit-appearance: auto !important;
       background-image: none !important;
       width: auto;
-      height: 36px;
       padding-right: 6px;
     }
     .lang-sel:hover { background: var(--border) !important; }
@@ -870,9 +880,9 @@
     <!-- ── Empfänger ── -->
     <div class="card">
       <div class="card-label" data-i18n="toWhom">An wen</div>
-
       <div class="recipient-fields" id="recipientFields">
         <div class="field">
+          <label for="rName" data-i18n="nameOrg">name / organisation</label>
           <div class="recipient-name-row">
             <div class="combobox-wrap">
               <input type="text" id="rName" data-i18n-ph="rNamePh" placeholder="z.B. Musterverein e.V." autocomplete="off">
@@ -891,6 +901,7 @@
             <label for="rAddr" data-i18n="addr">adresse</label>
             <input type="text" id="rAddr" data-i18n-ph="addrPh" placeholder="Straße Nr, PLZ Ort" autocomplete="off">
           </div>
+          <span class="or-divider" data-i18n="andOr">und / oder</span>
           <div class="field">
             <label for="rEmail" data-i18n="email">e-mail</label>
             <input type="email" id="rEmail" data-i18n-ph="emailPh" placeholder="name@example.de" autocomplete="off">
@@ -911,6 +922,7 @@
           <label for="myAddr" data-i18n="addr">adresse</label>
           <input type="text" id="myAddr" data-i18n-ph="addrPh" placeholder="Straße Nr, PLZ Ort" autocomplete="street-address">
         </div>
+        <span class="or-divider" data-i18n="andOr">und / oder</span>
         <div class="field">
           <label for="myEmail" data-i18n="email">e-mail</label>
           <input type="email" id="myEmail" data-i18n-ph="myEmailPh" placeholder="meine@email.de" autocomplete="email">
@@ -986,14 +998,21 @@
     <!-- ── Rechnungsnummer ── -->
     <div class="card">
       <div class="card-label" data-i18n="invoiceNrLabel">Rechnungsnummer</div>
-      <div style="display:flex;gap:10px">
-        <div class="field" style="flex:1">
+      <div class="field-row">
+        <div class="field">
           <label for="rNrIn" data-i18n="invoiceNrFieldLabel">Nummer</label>
           <input type="text" id="rNrIn" placeholder="2026/1" autocomplete="off">
         </div>
-        <div class="field" style="flex:1">
+        <div class="field">
           <label for="dateLetterIn" data-i18n="invoiceDateLabel">Datum</label>
-          <input type="text" id="dateLetterIn" data-i18n-ph="datePh" placeholder="TT.MM.JJJJ" autocomplete="off">
+          <div class="date-wrap">
+            <input type="text" id="dateLetterIn" data-i18n-ph="datePh" placeholder="TT.MM.JJJJ" autocomplete="off">
+            <button type="button" class="date-cal-btn" id="letterCalBtn" tabindex="-1" aria-label="Kalender öffnen">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1034,9 +1053,12 @@
     let items = [];
     let vorlage = {};
     let currency = '€';
+    let currentLang = 'de';
     let paymentMode = 'iban'; // 'iban' | 'bar'
-    let wasMap = {}; // label → amount
-    let dateRaw = ''; // raw digit string for date mask
+    let wasMap = {};
+    let vorlageItems = {};
+    let vorlageRecipients = [];
+    let dateRaw = '';         // raw digit string for date mask
     let _cachedPdfUri = null; // cached data-URI for preview → send flow
     let _sessionPw    = '';   // password entered at load, forwarded with email sends
 
@@ -1056,19 +1078,19 @@
 
     // ── Boot ───────────────────────────────────────────────────────────────────
     const VORLAGE_DEFAULTS = {
-      letter: 'Sehr geehrte Damen und Herren, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen Überweiseung an die unten angegebende IBAN.',
+      letter: 'Guten Tag, hiermit stelle ich die folgende(n) Position(en) in Rechnung, mit Bitte zur zeitnahen [Überweisung an die unten angegebende IBAN | Auszahlung in bar].',
       gruss: 'Mit freundlichen Grüßen',
       currency: '€',
       digitalsign: '--- Dieses Dokument wurde digital erstellt und ist ohne Unterschrift gültig ---',
       impressum: '',
       pw_protect: false,
       enable_email: false,
-      items: {},
-      recipients: [],
     };
 
     window.addEventListener('DOMContentLoaded', () => {
-      fetch('vorlage.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({})).then(v => {
+      const _embedded = (() => { try { return JSON.parse(document.getElementById('vorlage').textContent); } catch { return {}; } })();
+      fetch('vorlage.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => _embedded)
+        .then(v => {
         const _s = localStorage.getItem('rechnifySettings');
         const stored = _s ? (() => {
           try {
@@ -1077,15 +1099,16 @@
             return p;
           } catch { return {}; }
         })() : {};
+        vorlageItems      = v.items      || {};
+        vorlageRecipients = v.recipients || [];
         vorlage = { ...VORLAGE_DEFAULTS, ...v, ...stored };
         const browserLang = (navigator.language || 'de').toLowerCase().split('-')[0];
         currentLang = localStorage.getItem('lang') || (i18n[browserLang] ? browserLang : 'de');
-        const wasPresets = { ...(vorlage.items || {}), ...(stored.presets || {}) };
-        init(vorlage, wasPresets);
+        init(vorlage);
       });
     });
 
-    function init(v, wasPresets) {
+    function init(v) {
       updateVorlageUI(v);
 
       // Password protection (verify-only — no email sent)
@@ -1115,7 +1138,7 @@
         document.getElementById('headerSub').textContent = '@ ' + firstR.name;
       }
 
-      buildWasSelect(wasPresets);
+      buildWasSelect();
 
       // Pre-fill invoice number for initial recipient
       prefillInvoiceNr(firstR ? firstR.name : '');
@@ -1129,11 +1152,12 @@
         this.dataset.userEdited = '1';
       });
 
-      // Load sender from cookies
-      document.getElementById('myName').value  = getCookie('myName');
-      document.getElementById('myAddr').value  = getCookie('myAddr');
-      document.getElementById('myEmail').value = getCookie('myEmail');
-      document.getElementById('myIban').value  = getCookie('myIban');
+      // Load sender from localStorage
+      const _personal = (() => { try { return JSON.parse(localStorage.getItem('rechnifyPersonal') || '{}'); } catch { return {}; } })();
+      document.getElementById('myName').value  = _personal.name  || '';
+      document.getElementById('myAddr').value  = _personal.addr  || '';
+      document.getElementById('myEmail').value = _personal.email || '';
+      document.getElementById('myIban').value  = _personal.iban  || '';
 
       // Payment toggle
       document.getElementById('payIban').addEventListener('click', () => setPaymentMode('iban'));
@@ -1187,6 +1211,16 @@
 
         document.getElementById('wannCalBtn').addEventListener('click', () => fp.toggle());
         document.getElementById('wannTodayBtn').addEventListener('click', () => { fp.setDate(new Date(), true); fp.close(); });
+
+        const letterDateEl = document.getElementById('dateLetterIn');
+        const fpLetter = flatpickr('#dateLetterIn', {
+          locale: 'de',
+          dateFormat: 'd.m.Y',
+          allowInput: false,
+          disableMobile: true,
+          onChange: (_, dateStr) => { letterDateEl.value = dateStr; }
+        });
+        document.getElementById('letterCalBtn').addEventListener('click', () => fpLetter.toggle());
 
         wannInEl.addEventListener('keydown', e => {
           if (['Tab', 'Escape'].includes(e.key) || e.ctrlKey || e.metaKey) return;
@@ -1269,8 +1303,12 @@
     function getAllRecipients() {
       const saved = getSavedRecipients();
       const savedNames = new Set(saved.map(r => r.name));
-      const presets = (vorlage.recipients || []).filter(r => !savedNames.has(r.name));
-      return [...saved, ...presets];
+      const presets = vorlageRecipients.filter(r => !savedNames.has(r.name));
+      // saved (deletable) first, vorlage presets (not deletable) at bottom
+      return [
+        ...saved.map(r => ({ ...r, deletable: true })),
+        ...presets.map(r => ({ ...r, deletable: false })),
+      ];
     }
 
     function syncRecipientArrow() {
@@ -1290,17 +1328,20 @@
         const lbl = document.createElement('span');
         lbl.className = 'combobox-opt-label';
         lbl.textContent = r.name;
-        const del = document.createElement('button');
-        del.type = 'button'; del.className = 'combobox-opt-del';
-        del.setAttribute('aria-label', `${r.name} entfernen`);
-        del.textContent = '×';
-        del.addEventListener('mousedown', e => {
-          e.preventDefault(); e.stopPropagation();
-          deleteRecipient(r.name);
-          syncRecipientArrow();
-          renderRecipientDropdown(input.value);
-        });
-        opt.appendChild(lbl); opt.appendChild(del);
+        opt.appendChild(lbl);
+        if (r.deletable) {
+          const del = document.createElement('button');
+          del.type = 'button'; del.className = 'combobox-opt-del';
+          del.setAttribute('aria-label', `${r.name} entfernen`);
+          del.textContent = '×';
+          del.addEventListener('mousedown', e => {
+            e.preventDefault(); e.stopPropagation();
+            deleteRecipient(r.name);
+            syncRecipientArrow();
+            renderRecipientDropdown(input.value);
+          });
+          opt.appendChild(del);
+        }
         opt.addEventListener('mousedown', e => {
           e.preventDefault();
           input.value = r.name;
@@ -1331,7 +1372,7 @@
           dropdown.classList.remove('open');
         } else {
           input.focus();
-          renderRecipientDropdown(input.value);
+          renderRecipientDropdown('');
         }
       });
       document.getElementById('rNewBtn').addEventListener('click', () => {
@@ -1377,9 +1418,7 @@
     }
 
     function getSavedRecipients() {
-      const raw = getCookie('recipients');
-      if (!raw) return [];
-      try { return JSON.parse(decodeURIComponent(raw)); } catch { return []; }
+      try { return JSON.parse(localStorage.getItem('rechnifyRecipients') || '[]'); } catch { return []; }
     }
 
     function saveRecipient(name, address, email) {
@@ -1392,12 +1431,12 @@
       } else {
         saved.push({ name, address: address || '', email: email || '' });
       }
-      setCookie('recipients', encodeURIComponent(JSON.stringify(saved)));
+      localStorage.setItem('rechnifyRecipients', JSON.stringify(saved));
     }
 
     function deleteRecipient(name) {
       const saved = getSavedRecipients().filter(r => r.name !== name);
-      setCookie('recipients', encodeURIComponent(JSON.stringify(saved)));
+      localStorage.setItem('rechnifyRecipients', JSON.stringify(saved));
     }
 
     // ── Service combobox ───────────────────────────────────────────────────────
@@ -1407,33 +1446,33 @@
       const dropdown = document.getElementById('wasDropdown');
       const q = (filter !== undefined ? filter : (input ? input.value : '')).toLowerCase();
       dropdown.innerHTML = '';
-      const entries = Object.entries(wasMap).filter(([k]) => !q || k.toLowerCase().includes(q));
-      if (!entries.length) { dropdown.classList.remove('open'); return; }
-      entries.forEach(([label, amount]) => {
+      const customEntries  = Object.entries(wasMap).filter(([k]) => !q || k.toLowerCase().includes(q));
+      const vorlageEntries = Object.entries(vorlageItems).filter(([k]) => !(k in wasMap) && (!q || k.toLowerCase().includes(q)));
+      if (!customEntries.length && !vorlageEntries.length) { dropdown.classList.remove('open'); return; }
+
+      const addOpt = (label, amount, deletable) => {
         const opt = document.createElement('div');
         opt.className = 'combobox-opt';
-
         const lbl = document.createElement('span');
         lbl.className = 'combobox-opt-label';
         lbl.textContent = label;
-
         const prc = document.createElement('span');
         prc.className = 'combobox-opt-price';
         prc.textContent = `${fmtAmount(amount)}${currency}`;
-
-        const del = document.createElement('button');
-        del.type = 'button';
-        del.className = 'combobox-opt-del';
-        del.setAttribute('aria-label', `${label} entfernen`);
-        del.textContent = '×';
-        del.addEventListener('mousedown', e => {
-          e.preventDefault(); e.stopPropagation();
-          delete wasMap[label];
-          syncWasArrow();
-          renderWasDropdown(input.value);
-        });
-
-        opt.appendChild(lbl); opt.appendChild(prc); opt.appendChild(del);
+        opt.appendChild(lbl); opt.appendChild(prc);
+        if (deletable) {
+          const del = document.createElement('button');
+          del.type = 'button'; del.className = 'combobox-opt-del';
+          del.setAttribute('aria-label', `${label} entfernen`);
+          del.textContent = '×';
+          del.addEventListener('mousedown', e => {
+            e.preventDefault(); e.stopPropagation();
+            delete wasMap[label];
+            syncWasArrow();
+            renderWasDropdown(input.value);
+          });
+          opt.appendChild(del);
+        }
         opt.addEventListener('mousedown', e => {
           e.preventDefault();
           input.value = label;
@@ -1441,19 +1480,23 @@
           dropdown.classList.remove('open');
         });
         dropdown.appendChild(opt);
-      });
+      };
+
+      customEntries.forEach(([l, a])  => addOpt(l, a, true));
+      vorlageEntries.forEach(([l, a]) => addOpt(l, a, false));
       dropdown.classList.add('open');
     }
 
     function syncWasArrow() {
-      document.getElementById('wasArrow').style.display = Object.keys(wasMap).length ? '' : 'none';
+      const total = Object.keys(wasMap).length + Object.keys(vorlageItems).length;
+      document.getElementById('wasArrow').style.display = total ? '' : 'none';
     }
 
-    function buildWasSelect(was) {
+    function buildWasSelect() {
       const input    = document.getElementById('wasSel');
       const priceIn  = document.getElementById('priceIn');
       const dropdown = document.getElementById('wasDropdown');
-      wasMap = { ...was, ...getCustomPositions() };
+      wasMap = getCustomPositions();
       syncWasArrow();
 
       const openWas = () => renderWasDropdown(input.value);
@@ -1470,7 +1513,7 @@
           dropdown.classList.remove('open');
         } else {
           input.focus();
-          renderWasDropdown(input.value);
+          renderWasDropdown('');
         }
       });
       document.addEventListener('click', e => {
@@ -1481,13 +1524,19 @@
     }
 
     function getCustomPositions() {
-      try { return JSON.parse(getCookie('ownPositions') || '{}'); } catch { return {}; }
+      try { return JSON.parse(localStorage.getItem('rechnifyItems') || '{}'); } catch { return {}; }
     }
 
     function saveCustomPosition(title, value) {
       const p = getCustomPositions();
       p[title] = value;
-      setCookie('ownPositions', JSON.stringify(p));
+      localStorage.setItem('rechnifyItems', JSON.stringify(p));
+    }
+
+    function deleteCustomPosition(title) {
+      const p = getCustomPositions();
+      delete p[title];
+      localStorage.setItem('rechnifyItems', JSON.stringify(p));
     }
 
     // ── Items ──────────────────────────────────────────────────────────────────
@@ -1503,15 +1552,18 @@
       if (dateRaw.length < 8) { markError(wannIn); return; }
       if (isNaN(amount) || priceIn.value === '') { markError(priceIn); return; }
 
-      // Persist unknown entries as custom for next time
-      if (wasMap[title] === undefined) {
+      // Persist as custom only if not a vorlage item
+      if (wasMap[title] === undefined && !(title in vorlageItems)) {
         wasMap[title] = amount;
         saveCustomPosition(title, amount);
+        syncWasArrow();
       }
 
       const [dd, mm, yyyy] = wannIn.value.split('.');
       const dateStr = new Date(yyyy, mm - 1, dd).toLocaleDateString('de-DE');
-      items.push({ label: `${title} (${dateStr})`, amount });
+      items.unshift({ label: `${title} (${dateStr})`, amount });
+      wasIn.value  = '';
+      priceIn.value = '';
       wannIn.value = '';
       dateRaw = '';
       renderItems();
@@ -1587,19 +1639,19 @@
     }
 
     function validateData(d) {
-      let invalid = false;
-      const err = el => { markError(el); invalid = true; };
+      let firstErr = null;
+      const err = el => { markError(el); if (!firstErr) firstErr = el; };
 
+      if (!d.rName)                err(document.getElementById('rName'));
+      if (!d.rAddr && !d.rEmail)   { err(document.getElementById('rAddr')); err(document.getElementById('rEmail')); }
       if (!d.myName)               err(document.getElementById('myName'));
       if (!d.myAddr && !d.myEmail) { err(document.getElementById('myAddr')); err(document.getElementById('myEmail')); }
       if (!d.isCash && !d.myIban)  err(document.getElementById('myIban'));
-      if (!d.rName)                err(document.getElementById('rName'));
-      if (!d.rAddr && !d.rEmail)   { err(document.getElementById('rAddr')); err(document.getElementById('rEmail')); }
       if (!items.length)           err(document.getElementById('wasSel'));
       if (!d.rNr)                  err(document.getElementById('rNrIn'));
 
-      if (invalid) { return false; }
-      return true;
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return !firstErr;
     }
 
     const _pdfIconPaths = `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/>`;
@@ -1620,10 +1672,7 @@
     }
 
     function persistData(d) {
-      setCookie('myName', d.myName);
-      setCookie('myAddr', d.myAddr);
-      setCookie('myEmail', d.myEmail);
-      setCookie('myIban', d.myIban);
+      localStorage.setItem('rechnifyPersonal', JSON.stringify({ name: d.myName, addr: d.myAddr, email: d.myEmail, iban: d.myIban }));
       saveRecipient(d.rName, d.rAddr, d.rEmail);
       syncRecipientArrow();
       incrementInvoiceCounter(d.rName);
@@ -1679,9 +1728,11 @@
         form.append('sender',    d.myName);
         form.append('pdf',       pdfUri);
         if (d.myEmail) form.append('cc', d.myEmail);
-        await fetch('send.php', { method: 'POST', body: form });
+        const res = await fetch('send.php', { method: 'POST', body: form });
+        const ok  = res.ok && (await res.text()) === 'ok';
+        showToast(ok ? t().sendOk : t().sendFail);
       } catch {
-        // send failed silently
+        showToast(t().sendFail);
       } finally {
         btn.disabled = false;
       }
@@ -1763,19 +1814,13 @@
       doc.text(tr.invoiceSubject(rNr, dateStr), L, y);
       y += 10;
 
-      // ── Letter text
-      if (vorlage.letter) {
+      // ── Letter text ([iban text | cash text] resolved by payment mode)
+      const letterText = applyPaymentMode(vorlage.letter, isCash);
+      if (letterText) {
         sf(10, 'normal', BLK);
-        const aLines = splitLines(vorlage.letter, W);
+        const aLines = splitLines(letterText, W);
         doc.text(aLines, L, y);
         y += aLines.length * 5.5 + 4;
-      }
-
-      // ── Cash notice at end of letter text (before items)
-      if (isCash) {
-        sf(10, 'normal', BLK);
-        doc.text(tr.cashPayment, L, y);
-        y += 8;
       }
 
       // ── IBAN block (name above IBAN, before items)
@@ -1790,9 +1835,9 @@
 
       y += 2;
 
-      // ── Items — label indented, dot leaders, amount left-aligned at fixed col
-      const amtX = 135;  // left edge of amount column
-      const labelX = L + 5;
+      // ── Items — label indented at ~1/3 page, dot leaders, amount at fixed col
+      const labelX = 70;  // ~1/3 of A4 page width from left edge
+      const amtX   = 150; // left edge of amount column
       items.forEach(item => {
         sf(10, 'normal', BLK);
         const amtStr = `${fmtAmount(item.amount)} ${currency}`;
@@ -1813,7 +1858,7 @@
       y += 3;
       doc.setDrawColor(...GRY);
       doc.setLineWidth(0.4);
-      doc.line(amtX - 5, y, R, y);
+      doc.line(labelX, y, R, y);
       doc.setLineWidth(0.2);
       y += 6;
       sf(12, 'bold', BLK);
@@ -1861,6 +1906,13 @@
     }
 
     // ── Utilities ──────────────────────────────────────────────────────────────
+    // Resolves [iban text | cash text] conditionals in letter templates
+    function applyPaymentMode(text, isCash) {
+      return (text || '').replace(/\[([^\]|]*)\|([^\]]*)\]/g, (_, iban, cash) =>
+        (isCash ? cash : iban).trim()
+      );
+    }
+
     function shake(el) {
       el.classList.remove('shake');
       void el.offsetWidth;
@@ -1904,7 +1956,11 @@
     function renderPresetList() {
       const container = document.getElementById('presetList');
       container.innerHTML = '';
-      Object.entries(wasMap).forEach(([label, amount]) => {
+      const allPresets = [
+        ...Object.entries(wasMap).map(([k,v]) => [k, v, true]),
+        ...Object.entries(vorlageItems).filter(([k]) => !(k in wasMap)).map(([k,v]) => [k, v, false]),
+      ];
+      allPresets.forEach(([label, amount, deletable]) => {
         const row = document.createElement('div');
         row.className = 'preset-row';
         const lbl = document.createElement('span');
@@ -1913,16 +1969,21 @@
         const prc = document.createElement('span');
         prc.style.cssText = 'font-size:14px;font-weight:600;color:var(--primary);text-align:right';
         prc.textContent = `${fmtAmount(amount)}${currency}`;
-        const del = document.createElement('button');
-        del.type = 'button'; del.className = 'preset-del';
-        del.setAttribute('aria-label', 'Entfernen');
-        del.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
-        del.addEventListener('click', () => {
-          delete wasMap[label];
-          renderPresetList();
-          renderWasDropdown('');
-        });
-        row.appendChild(lbl); row.appendChild(prc); row.appendChild(del);
+        row.appendChild(lbl); row.appendChild(prc);
+        if (deletable) {
+          const del = document.createElement('button');
+          del.type = 'button'; del.className = 'preset-del';
+          del.setAttribute('aria-label', 'Entfernen');
+          del.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+          del.addEventListener('click', () => {
+            delete wasMap[label];
+            deleteCustomPosition(label);
+            syncWasArrow();
+            renderPresetList();
+            renderWasDropdown('');
+          });
+          row.appendChild(del);
+        }
         container.appendChild(row);
       });
     }
@@ -1943,10 +2004,6 @@
     document.getElementById('settingsClear').addEventListener('click', () => {
       if (!confirm('Alle lokalen Daten (Einstellungen, Empfänger, Posten) löschen?')) return;
       localStorage.clear();
-      document.cookie.split(';').forEach(c => {
-        const key = c.split('=')[0].trim();
-        document.cookie = `${key}=; max-age=0; path=/`;
-      });
       location.reload();
     });
 
@@ -1967,39 +2024,32 @@
 
     document.getElementById('settingsSave').addEventListener('click', () => {
       const upd = {
-        letter: document.getElementById('sAnschreiben').value.trim(),
+        letter:      document.getElementById('sAnschreiben').value.trim(),
         gruss:       document.getElementById('sGruss').value.trim(),
         currency:    document.getElementById('sCurrency').value.trim() || '€',
         digitalsign: document.getElementById('sDigitalsign').value.trim(),
-        presets:     { ...wasMap }
       };
       localStorage.setItem('rechnifySettings', JSON.stringify(upd));
+      localStorage.setItem('rechnifyItems', JSON.stringify(wasMap));
       vorlage = { ...vorlage, ...upd };
       updateVorlageUI(vorlage);
       closeSettings();
+      showToast(t().settingsSaved);
     });
 
     // ── i18n ───────────────────────────────────────────────────────────────────
-    let currentLang = 'de';
-
     const i18n = {
       de: {
         toWhom:'an wen', fromMe:'von mir', items:'was', note:'notiz',
         nameOrg:'name / organisation', addr:'adresse', email:'e-mail', andOr:'und / oder', fullName:'voller name',
         payment:'zahlung', cash:'Bar', whatFor:'wofür', howMuch:'wie viel', whenWas:'wann war\'s',
         generate:'PDF erstellen', preview:'Vorschau', settings:'Einstellungen',
-        sendEmail:'Per E-Mail senden', sendOk:'Gesendet ✓', sendFail:'Versand fehlgeschlagen', noEmail:'Keine E-Mail-Adresse hinterlegt',
+        sendEmail:'Per E-Mail senden', sendOk:'Gesendet ✓', sendFail:'Versand fehlgeschlagen',
         clearData:'Lokale Daten löschen',
         lblAnschreiben:'anschreiben', lblGruss:'grußformel', lblCurrency:'währung',
         lblDigitalsign:'digitale signatur',
         presetsLabel:'was (wofür)', save:'Speichern',
         emptyHint:'Noch keine Posten — Datum wählen und + drücken',
-        newRecipient:'+ Neuer Empfänger',
-        enterService:'Bitte Leistung eingeben', enterDate:'Bitte Datum wählen',
-        enterAmount:'Bitte Betrag eingeben', noItems:'Noch keine Posten hinzugefügt',
-        enterName:'Bitte Name eingeben', enterAddr:'Bitte Adresse oder E-Mail eingeben',
-        enterAddrOrEmail:'Bitte Adresse oder E-Mail eingeben',
-        enterIban:'Bitte IBAN eingeben', enterRecipient:'Bitte Empfänger eingeben',
         pdfReady:'PDF wird heruntergeladen ✓', settingsSaved:'Einstellungen gespeichert',
         invoice:'RECHNUNG', invoiceNr:'Nr.', invoiceTo:'An',
         invoiceNrLabel:'rechnungsnummer', invoiceNrFieldLabel:'nummer', invoiceDateLabel:'datum',
@@ -2018,18 +2068,12 @@
         nameOrg:'name / organisation', addr:'address', email:'email', andOr:'and / or', fullName:'full name',
         payment:'payment', cash:'Cash', whatFor:'for', howMuch:'how much', whenWas:'when',
         generate:'generate PDF', preview:'Preview', settings:'Settings',
-        sendEmail:'Send by email', sendOk:'Sent ✓', sendFail:'Sending failed', noEmail:'No email address on file',
+        sendEmail:'Send by email', sendOk:'Sent ✓', sendFail:'Sending failed',
         clearData:'Clear local data',
         lblAnschreiben:'opening text', lblGruss:'closing', lblCurrency:'currency',
         lblDigitalsign:'digital signature',
         presetsLabel:'what (for)', save:'Save',
         emptyHint:'No items yet — pick a date and hit +',
-        newRecipient:'+ New recipient',
-        enterService:'Please enter a service', enterDate:'Please pick a date',
-        enterAmount:'Please enter an amount', noItems:'No items added yet',
-        enterName:'Please enter your name', enterAddr:'Please enter address or email',
-        enterAddrOrEmail:'Please enter address or email',
-        enterIban:'Please enter your IBAN', enterRecipient:'Please enter a recipient',
         pdfReady:'PDF downloading ✓', settingsSaved:'Settings saved',
         invoice:'INVOICE', invoiceNr:'No.', invoiceTo:'To',
         invoiceNrLabel:'invoice number', invoiceNrFieldLabel:'number', invoiceDateLabel:'date',
@@ -2048,18 +2092,12 @@
         nameOrg:'nom / organisation', addr:'adresse', email:'e-mail', andOr:'et / ou', fullName:'nom complet',
         payment:'paiement', cash:'Espèces', whatFor:'pour', howMuch:'combien', whenWas:'quand',
         generate:'créer PDF', preview:'Aperçu', settings:'Paramètres',
-        sendEmail:'Envoyer par e-mail', sendOk:'Envoyé ✓', sendFail:'Envoi échoué', noEmail:'Pas d\'adresse e-mail',
+        sendEmail:'Envoyer par e-mail', sendOk:'Envoyé ✓', sendFail:'Envoi échoué',
         clearData:'Effacer les données locales',
         lblAnschreiben:"texte d'intro", lblGruss:'formule de politesse', lblCurrency:'devise',
         lblDigitalsign:'signature numérique',
         presetsLabel:'quoi (pour)', save:'Enregistrer',
         emptyHint:'Aucune prestation — choisir une date et appuyer sur +',
-        newRecipient:'+ Nouveau destinataire',
-        enterService:'Veuillez saisir une prestation', enterDate:'Veuillez choisir une date',
-        enterAmount:'Veuillez saisir un montant', noItems:'Aucune prestation ajoutée',
-        enterName:'Veuillez saisir votre nom', enterAddr:'Veuillez saisir adresse ou e-mail',
-        enterAddrOrEmail:'Veuillez saisir adresse ou e-mail',
-        enterIban:'Veuillez saisir votre IBAN', enterRecipient:'Veuillez saisir un destinataire',
         pdfReady:'PDF en téléchargement ✓', settingsSaved:'Paramètres enregistrés',
         invoice:'FACTURE', invoiceNr:'N°', invoiceTo:'À',
         invoiceNrLabel:'numéro de facture', invoiceNrFieldLabel:'numéro', invoiceDateLabel:'date',
@@ -2078,18 +2116,12 @@
         nameOrg:'nombre / organización', addr:'dirección', email:'e-mail', andOr:'y / o', fullName:'nombre completo',
         payment:'pago', cash:'Efectivo', whatFor:'para', howMuch:'¿cuánto?', whenWas:'¿cuándo?',
         generate:'crear PDF', preview:'Vista previa', settings:'Ajustes',
-        sendEmail:'Enviar por e-mail', sendOk:'Enviado ✓', sendFail:'Error al enviar', noEmail:'Sin dirección de e-mail',
+        sendEmail:'Enviar por e-mail', sendOk:'Enviado ✓', sendFail:'Error al enviar',
         clearData:'Borrar datos locales',
         lblAnschreiben:'texto introductorio', lblGruss:'fórmula de cierre', lblCurrency:'divisa',
         lblDigitalsign:'firma digital',
         presetsLabel:'qué (para)', save:'Guardar',
         emptyHint:'Sin conceptos — elige fecha y pulsa +',
-        newRecipient:'+ Nuevo destinatario',
-        enterService:'Introduce un concepto', enterDate:'Elige una fecha',
-        enterAmount:'Introduce un importe', noItems:'Sin conceptos aún',
-        enterName:'Introduce tu nombre', enterAddr:'Introduce dirección o e-mail',
-        enterAddrOrEmail:'Introduce dirección o e-mail',
-        enterIban:'Introduce tu IBAN', enterRecipient:'Introduce un destinatario',
         pdfReady:'PDF descargando ✓', settingsSaved:'Ajustes guardados',
         invoice:'FACTURA', invoiceNr:'N.°', invoiceTo:'A',
         invoiceNrLabel:'número de factura', invoiceNrFieldLabel:'número', invoiceDateLabel:'fecha',
@@ -2108,18 +2140,12 @@
         nameOrg:'nome / organizzazione', addr:'indirizzo', email:'e-mail', andOr:'e / o', fullName:'nome completo',
         payment:'pagamento', cash:'Contanti', whatFor:'per', howMuch:'quanto', whenWas:'quando',
         generate:'crea PDF', preview:'Anteprima', settings:'Impostazioni',
-        sendEmail:'Invia per e-mail', sendOk:'Inviato ✓', sendFail:'Invio fallito', noEmail:'Nessuna e-mail',
+        sendEmail:'Invia per e-mail', sendOk:'Inviato ✓', sendFail:'Invio fallito',
         clearData:'Cancella dati locali',
         lblAnschreiben:'testo introduttivo', lblGruss:'formula di chiusura', lblCurrency:'valuta',
         lblDigitalsign:'firma digitale',
         presetsLabel:'cosa (per)', save:'Salva',
         emptyHint:'Nessuna voce — scegli una data e premi +',
-        newRecipient:'+ Nuovo destinatario',
-        enterService:'Inserisci una voce', enterDate:'Scegli una data',
-        enterAmount:'Inserisci un importo', noItems:'Nessuna voce aggiunta',
-        enterName:'Inserisci il tuo nome', enterAddr:'Inserisci indirizzo o e-mail',
-        enterAddrOrEmail:'Inserisci indirizzo o e-mail',
-        enterIban:'Inserisci il tuo IBAN', enterRecipient:'Inserisci un destinatario',
         pdfReady:'PDF in download ✓', settingsSaved:'Impostazioni salvate',
         invoice:'FATTURA', invoiceNr:'N.', invoiceTo:'A',
         invoiceNrLabel:'numero fattura', invoiceNrFieldLabel:'numero', invoiceDateLabel:'data',
@@ -2138,18 +2164,12 @@
         nameOrg:'nome / organização', addr:'morada', email:'e-mail', andOr:'e / ou', fullName:'nome completo',
         payment:'pagamento', cash:'Numerário', whatFor:'para', howMuch:'quanto', whenWas:'quando',
         generate:'criar PDF', preview:'Pré-visualizar', settings:'Definições',
-        sendEmail:'Enviar por e-mail', sendOk:'Enviado ✓', sendFail:'Falha no envio', noEmail:'Sem e-mail',
+        sendEmail:'Enviar por e-mail', sendOk:'Enviado ✓', sendFail:'Falha no envio',
         clearData:'Apagar dados locais',
         lblAnschreiben:'texto de abertura', lblGruss:'fórmula de fecho', lblCurrency:'moeda',
         lblDigitalsign:'assinatura digital',
         presetsLabel:'o quê (para)', save:'Guardar',
         emptyHint:'Sem itens — escolhe uma data e prime +',
-        newRecipient:'+ Novo destinatário',
-        enterService:'Insere um item', enterDate:'Escolhe uma data',
-        enterAmount:'Insere um valor', noItems:'Nenhum item adicionado',
-        enterName:'Insere o teu nome', enterAddr:'Insere morada ou e-mail',
-        enterAddrOrEmail:'Insere morada ou e-mail',
-        enterIban:'Insere o teu IBAN', enterRecipient:'Insere um destinatário',
         pdfReady:'PDF a descarregar ✓', settingsSaved:'Definições guardadas',
         invoice:'FATURA', invoiceNr:'N.º', invoiceTo:'Para',
         invoiceNrLabel:'número de fatura', invoiceNrFieldLabel:'número', invoiceDateLabel:'data',
@@ -2168,18 +2188,12 @@
         nameOrg:'naam / organisatie', addr:'adres', email:'e-mail', andOr:'en / of', fullName:'volledige naam',
         payment:'betaling', cash:'Contant', whatFor:'voor', howMuch:'hoeveel', whenWas:'wanneer',
         generate:'PDF aanmaken', preview:'Voorbeeld', settings:'Instellingen',
-        sendEmail:'Versturen', sendOk:'Verzonden ✓', sendFail:'Verzenden mislukt', noEmail:'Geen e-mailadres',
+        sendEmail:'Versturen', sendOk:'Verzonden ✓', sendFail:'Verzenden mislukt',
         clearData:'Lokale gegevens wissen',
         lblAnschreiben:'openingstekst', lblGruss:'afsluiting', lblCurrency:'valuta',
         lblDigitalsign:'digitale handtekening',
         presetsLabel:'wat (voor)', save:'Opslaan',
         emptyHint:'Nog geen posten — kies een datum en druk op +',
-        newRecipient:'+ Nieuwe ontvanger',
-        enterService:'Voer een post in', enterDate:'Kies een datum',
-        enterAmount:'Voer een bedrag in', noItems:'Nog geen posten toegevoegd',
-        enterName:'Voer uw naam in', enterAddr:'Voer adres of e-mail in',
-        enterAddrOrEmail:'Voer adres of e-mail in',
-        enterIban:'Voer uw IBAN in', enterRecipient:'Voer een ontvanger in',
         pdfReady:'PDF wordt gedownload ✓', settingsSaved:'Instellingen opgeslagen',
         invoice:'FACTUUR', invoiceNr:'Nr.', invoiceTo:'Aan',
         invoiceNrLabel:'factuurnummer', invoiceNrFieldLabel:'nummer', invoiceDateLabel:'datum',
@@ -2198,18 +2212,12 @@
         nameOrg:'imię i nazwisko / organizacja', addr:'adres', email:'e-mail', andOr:'i / lub', fullName:'pełne imię',
         payment:'płatność', cash:'Gotówka', whatFor:'za', howMuch:'ile', whenWas:'kiedy',
         generate:'utwórz PDF', preview:'Podgląd', settings:'Ustawienia',
-        sendEmail:'Wyślij e-mail', sendOk:'Wysłano ✓', sendFail:'Wysyłanie nieudane', noEmail:'Brak adresu e-mail',
+        sendEmail:'Wyślij e-mail', sendOk:'Wysłano ✓', sendFail:'Wysyłanie nieudane',
         clearData:'Wyczyść dane lokalne',
         lblAnschreiben:'tekst wstępny', lblGruss:'formuła zamknięcia', lblCurrency:'waluta',
         lblDigitalsign:'podpis cyfrowy',
         presetsLabel:'co (za)', save:'Zapisz',
         emptyHint:'Brak pozycji — wybierz datę i naciśnij +',
-        newRecipient:'+ Nowy odbiorca',
-        enterService:'Wpisz pozycję', enterDate:'Wybierz datę',
-        enterAmount:'Wpisz kwotę', noItems:'Nie dodano żadnych pozycji',
-        enterName:'Wpisz swoje imię', enterAddr:'Wpisz adres lub e-mail',
-        enterAddrOrEmail:'Wpisz adres lub e-mail',
-        enterIban:'Wpisz swój IBAN', enterRecipient:'Wpisz odbiorcę',
         pdfReady:'PDF jest pobierany ✓', settingsSaved:'Ustawienia zapisane',
         invoice:'FAKTURA', invoiceNr:'Nr', invoiceTo:'Do',
         invoiceNrLabel:'numer faktury', invoiceNrFieldLabel:'numer', invoiceDateLabel:'data',
@@ -2228,18 +2236,12 @@
         nameOrg:'namn / organisation', addr:'adress', email:'e-post', andOr:'och / eller', fullName:'hela namnet',
         payment:'betalning', cash:'Kontant', whatFor:'till', howMuch:'hur mycket', whenWas:'när',
         generate:'skapa PDF', preview:'Förhandsgranska', settings:'Inställningar',
-        sendEmail:'Skicka e-post', sendOk:'Skickat ✓', sendFail:'Sändning misslyckades', noEmail:'Ingen e-postadress',
+        sendEmail:'Skicka e-post', sendOk:'Skickat ✓', sendFail:'Sändning misslyckades',
         clearData:'Rensa lokal data',
         lblAnschreiben:'inledningstext', lblGruss:'avslutningsformel', lblCurrency:'valuta',
         lblDigitalsign:'digital signatur',
         presetsLabel:'vad (till)', save:'Spara',
         emptyHint:'Inga poster — välj datum och tryck +',
-        newRecipient:'+ Ny mottagare',
-        enterService:'Ange en post', enterDate:'Välj ett datum',
-        enterAmount:'Ange ett belopp', noItems:'Inga poster tillagda',
-        enterName:'Ange ditt namn', enterAddr:'Ange adress eller e-post',
-        enterAddrOrEmail:'Ange adress eller e-post',
-        enterIban:'Ange ditt IBAN', enterRecipient:'Ange en mottagare',
         pdfReady:'PDF laddas ner ✓', settingsSaved:'Inställningar sparade',
         invoice:'FAKTURA', invoiceNr:'Nr.', invoiceTo:'Till',
         invoiceNrLabel:'fakturanummer', invoiceNrFieldLabel:'nummer', invoiceDateLabel:'datum',
@@ -2258,18 +2260,12 @@
         nameOrg:'氏名 / 組織名', addr:'住所', email:'メール', andOr:'または', fullName:'氏名',
         payment:'支払方法', cash:'現金', whatFor:'用途', howMuch:'金額', whenWas:'日付',
         generate:'PDF作成', preview:'プレビュー', settings:'設定',
-        sendEmail:'メールで送信', sendOk:'送信済み ✓', sendFail:'送信失敗', noEmail:'メールアドレスなし',
+        sendEmail:'メールで送信', sendOk:'送信済み ✓', sendFail:'送信失敗',
         clearData:'ローカルデータを削除',
         lblAnschreiben:'本文', lblGruss:'結び', lblCurrency:'通貨',
         lblDigitalsign:'デジタル署名',
         presetsLabel:'何（用途）', save:'保存',
         emptyHint:'項目なし — 日付を選んで + を押してください',
-        newRecipient:'+ 新しい宛先',
-        enterService:'内容を入力してください', enterDate:'日付を選択してください',
-        enterAmount:'金額を入力してください', noItems:'項目が追加されていません',
-        enterName:'氏名を入力してください', enterAddr:'住所またはメールを入力してください',
-        enterAddrOrEmail:'住所またはメールを入力してください',
-        enterIban:'口座情報を入力してください', enterRecipient:'宛先を入力してください',
         pdfReady:'PDF をダウンロード中 ✓', settingsSaved:'設定を保存しました',
         invoice:'請求書', invoiceNr:'番号', invoiceTo:'宛先',
         invoiceNrLabel:'請求書番号', invoiceNrFieldLabel:'番号', invoiceDateLabel:'日付',
@@ -2308,14 +2304,6 @@
 
     document.getElementById('langSel').addEventListener('change', e => applyLang(e.target.value));
 
-    // ── Utilities ──────────────────────────────────────────────────────────────
-    const setCookie = (k, v) =>
-      (document.cookie = `${k}=${v}; path=/; max-age=31536000; samesite=strict`);
-
-    const getCookie = name => {
-      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-      return m ? m.pop() : '';
-    };
   </script>
 </body>
 </html>
