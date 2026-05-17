@@ -29,10 +29,12 @@ Drop the files from the [latest release](https://github.com/ueen/Rechnify/releas
 
 | Field | Description |
 |---|---|
+| `docTitle` | Heading text in the PDF (e.g. `"RECHNUNG"`); defaults to the UI language word for invoice |
+| `logo` | Path or URL to a logo image rendered top-right in the PDF (e.g. `"/logo.png"`); can also be set to a local file via Settings |
 | `letter` | Opening paragraph in the PDF — supports `[iban text \| cash text]` conditionals |
 | `gruss` | Closing greeting |
 | `currency` | Symbol displayed next to amounts |
-| `digitalsign` | Small italic footer line; `""` to hide |
+| `digitalsign` | Footer text rendered below the PDF — supports two lines separated by `\n`; `""` to hide |
 | `impressum` | Clickable link in footer and PDF |
 | `pw_protect` | Password gate (`true`/`false`) |
 | `enable_email` | E-mail sending feature (`true`/`false`) |
