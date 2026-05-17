@@ -68,4 +68,4 @@ Set `"pw_protect": true` in `vorlage.json` and `$password` in `send.php`. Pass i
 
 ---
 
-[LICENSE](LICENSE)
+[Unlicense](LICENSE)
