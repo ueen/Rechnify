@@ -21,7 +21,7 @@ Fill in who, what and when — Rechnify generates a clean PDF. Optionally send i
 
 ## Install
 
-Drop the files from the [latest release](https://github.com/ueen/Rechnify/releases/latest) on any PHP server and open `rechnify.html`.
+Drop the files from the [latest release](https://github.com/ueen/Rechnify/releases/latest) on any PHP server and open `index.html`.
 
 ---
 
@@ -30,7 +30,7 @@ Drop the files from the [latest release](https://github.com/ueen/Rechnify/releas
 | Field | Description |
 |---|---|
 | `invoiceTitle` | Heading text in the PDF (default `"Rechnung"`); set to any string to override |
-| `logo` | Path or URL to a logo image rendered top-right in the PDF (e.g. `"/logo.png"`); can also be set to a local file via Settings |
+| `logo` | Path or URL to a logo image rendered top-right in the PDF (e.g. `"/logo.png"`); SVG, PNG, JPEG supported; can also be picked as a local file via Settings |
 | `letter` | Opening paragraph in the PDF — supports `[iban text \| cash text]` conditionals |
 | `gruss` | Closing greeting |
 | `currency` | Symbol displayed next to amounts |
@@ -66,7 +66,7 @@ For SMTP, install [PHPMailer](https://github.com/PHPMailer/PHPMailer) and follow
 
 ## Password protection
 
-Set `"pw_protect": true` in `vorlage.json` and `$password` in `send.php`. Pass it in the URL to skip the prompt: `rechnify.html?pw=yourpassword`
+Set `"pw_protect": true` in `vorlage.json` and `$password` in `send.php`. Pass it in the URL to skip the prompt: `index.html?pw=yourpassword`
 
 ---
 
