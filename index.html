@@ -1659,6 +1659,8 @@
       };
     }
 
+    const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+
     function markError(el) {
       el.classList.add('error');
       shake(el);
@@ -1672,8 +1674,10 @@
 
       if (!d.rName)                err(document.getElementById('rName'));
       if (!d.rAddr && !d.rEmail)   { err(document.getElementById('rAddr')); err(document.getElementById('rEmail')); }
+      if (d.rEmail && !isEmail(d.rEmail))   err(document.getElementById('rEmail'));
       if (!d.myName)               err(document.getElementById('myName'));
       if (!d.myAddr && !d.myEmail) { err(document.getElementById('myAddr')); err(document.getElementById('myEmail')); }
+      if (d.myEmail && !isEmail(d.myEmail)) err(document.getElementById('myEmail'));
       if (!d.isCash && !d.myIban)  err(document.getElementById('myIban'));
       if (!items.length)           err(document.getElementById('wasSel'));
       if (!d.rNr)                  err(document.getElementById('rNrIn'));
@@ -1693,7 +1697,7 @@
         return;
       }
       const email = document.getElementById('rEmail').value.trim();
-      const hasEmail = /\S+@\S+\.\S+/.test(email);
+      const hasEmail = isEmail(email);
       document.getElementById('sendBtn').style.display = hasEmail ? '' : 'none';
       document.getElementById('genBtnLabel').textContent = hasEmail ? t().preview : t().generate;
       document.getElementById('genBtnIcon').innerHTML = hasEmail ? _eyeIconPaths : _pdfIconPaths;
@@ -1713,7 +1717,7 @@
       const d = collectData();
       if (!validateData(d)) return;
       persistData(d);
-      if (vorlage.enable_email && /\S+@\S+\.\S+/.test(d.rEmail)) {
+      if (vorlage.enable_email && isEmail(d.rEmail)) {
         const { blob, uri } = makePDF({ ...d, returnBoth: true });
         _cachedPdfUri = uri;
         const url = URL.createObjectURL(blob);
@@ -1735,6 +1739,7 @@
       if (!vorlage.enable_email) return;
       const d = collectData();
       if (!validateData(d)) return;
+      if (!isEmail(d.rEmail)) { markError(document.getElementById('rEmail')); return; }
       persistData(d);
 
       // Reuse PDF from preview (same invoice number); generate fresh if no preview was done
