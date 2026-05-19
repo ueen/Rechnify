@@ -1576,7 +1576,7 @@
       const title  = wasIn.value.trim();
       const amount = parseAmount(priceIn.value);
 
-      if (!title)  { markError(wasIn);   return; }
+      if (!title)  { if (items.length) return; markError(wasIn); return; }
       if (dateRaw.length < 8) { markError(wannIn); return; }
       if (isNaN(amount) || priceIn.value === '') { markError(priceIn); return; }
 
