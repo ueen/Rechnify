@@ -1576,7 +1576,7 @@
       const title  = wasIn.value.trim();
       const amount = parseAmount(priceIn.value);
 
-      if (!title)  { if (items.length) return; markError(wasIn); return; }
+      if (!title)  { markError(wasIn);   return; }
       if (dateRaw.length < 8) { markError(wannIn); return; }
       if (isNaN(amount) || priceIn.value === '') { markError(priceIn); return; }
 
@@ -1611,6 +1611,7 @@
       }
       hint.style.display = 'none';
       bar.style.display  = '';
+      document.getElementById('wasSel').classList.remove('error');
 
       let sum = 0;
       items.forEach((item, idx) => {
