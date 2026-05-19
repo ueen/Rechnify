@@ -1504,6 +1504,7 @@
         opt.addEventListener('mousedown', e => {
           e.preventDefault();
           input.value = label;
+          input.classList.remove('error');
           priceIn.value = fmtAmount(amount);
           dropdown.classList.remove('open');
         });
@@ -1534,6 +1535,7 @@
         renderWasDropdown(input.value);
         const price = wasMap[input.value.trim()];
         if (price !== undefined) priceIn.value = fmtAmount(price);
+        if (input.value.trim()) input.classList.remove('error');
       });
       document.getElementById('wasArrow').addEventListener('mousedown', e => {
         e.preventDefault();
@@ -1681,6 +1683,7 @@
       if (d.myEmail && !isEmail(d.myEmail)) err(document.getElementById('myEmail'));
       if (!d.isCash && !d.myIban)  err(document.getElementById('myIban'));
       if (!items.length)           err(document.getElementById('wasSel'));
+      else                         document.getElementById('wasSel').classList.remove('error');
       if (!d.rNr)                  err(document.getElementById('rNrIn'));
 
       if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
